@@ -1,10 +1,8 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "UltraRail/Public/WorldGen/Structs/BlockIdConnection.h"
+#include "UltraRail/Public/WorldGen/WaveFunctionCollapse/Structs/BlockIdConnection.h"
 #include "BiomeBlockIDs.generated.h"
 
 
@@ -19,4 +17,7 @@ class ULTRARAIL_API UBiomeBlockIDs : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FBlockIdConnection> BlockIdConnections;
+	
+	UFUNCTION(BlueprintCallable)
+	void NormalizeWeights();
 };

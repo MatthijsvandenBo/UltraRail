@@ -1,8 +1,7 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "CollapseSettings.h"
 #include "BlockIdConnection.generated.h"
 
 class ABlock;
@@ -20,4 +19,7 @@ struct ULTRARAIL_API FBlockIdConnection
 
  UPROPERTY(EditAnywhere, BlueprintReadOnly)
  int32 ID;
+
+ UPROPERTY(EditAnywhere, BlueprintReadOnly)
+ FCollapseSettings CollapseSettings;
 };

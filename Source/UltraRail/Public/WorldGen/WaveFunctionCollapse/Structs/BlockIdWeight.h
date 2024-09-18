@@ -1,6 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "BlockIdWeight.generated.h"
@@ -15,6 +13,6 @@ struct ULTRARAIL_API FBlockIdWeight
 public:
  UPROPERTY(EditAnywhere, BlueprintReadOnly)
  int32 BlockID = 0;
- UPROPERTY(EditAnywhere, BlueprintReadOnly)
+ UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(UIMin = "0.0", UIMax = "1.0"))
  float Weight = 1;
 };

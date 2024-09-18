@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "UltraRail/Public/WorldGen/WaveCollapseGen.h"
+﻿#include "UltraRail/Public/WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
 
 
 // Sets default values

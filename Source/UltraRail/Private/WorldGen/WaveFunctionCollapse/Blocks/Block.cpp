@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "UltraRail/Public/WorldGen/Blocks/Block.h"
+﻿#include "UltraRail/Public/WorldGen/WaveFunctionCollapse/Blocks/Block.h"
 
 
 // Sets default values
