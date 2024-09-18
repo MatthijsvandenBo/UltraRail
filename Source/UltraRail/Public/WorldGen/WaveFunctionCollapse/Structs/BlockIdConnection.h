@@ -18,7 +18,7 @@ struct ULTRARAIL_API FBlockIdConnection
  TSubclassOf<ABlock> Block;
 
  UPROPERTY(EditAnywhere, BlueprintReadOnly)
- int32 ID;
+ int32 ID = 1;
 
  UPROPERTY(EditAnywhere, BlueprintReadOnly)
  FCollapseSettings CollapseSettings;

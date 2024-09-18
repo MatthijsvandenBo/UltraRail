@@ -4,8 +4,13 @@
 // Sets default values
 ABlock::ABlock()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	BlockMesh = CreateDefaultSubobject<UStaticMeshComponent>("BlockMesh");
+	
+	// blocks are stationary for the ground, no physics or gravity
+	BlockMesh->SetSimulatePhysics(false);
+	BlockMesh->SetEnableGravity(false);
 }
 
 // Called when the game starts or when spawned

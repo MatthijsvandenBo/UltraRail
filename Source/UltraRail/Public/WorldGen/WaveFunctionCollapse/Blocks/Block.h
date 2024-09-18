@@ -10,6 +10,9 @@ class ULTRARAIL_API ABlock : public AActor
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UStaticMeshComponent> BlockMesh;
+
 public:
 	// Sets default values for this actor's properties
 	ABlock();
