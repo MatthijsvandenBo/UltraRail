@@ -235,6 +235,7 @@ void AWaveCollapseGen::ObserveCell_Implementation(TScriptInterface<IFieldObserve
 	if (Observer->GetTopNeighbour(X, Y, TopNeighbourState) && TopNeighbourState.BlockID != FCellState::Empty_State)
 	{
 		// update the Top neighbour
+		// TODO: Update Top Neighbour
 	}
 
 	// Right Cell
@@ -242,6 +243,7 @@ void AWaveCollapseGen::ObserveCell_Implementation(TScriptInterface<IFieldObserve
 	if (Observer->GetTopNeighbour(X, Y, RightNeighbourState) && RightNeighbourState.BlockID != FCellState::Empty_State)
 	{
 		// update the Right neighbour
+		// TODO: Update Right Neighbour
 	}
 
 	// Bottom Cell
@@ -249,6 +251,7 @@ void AWaveCollapseGen::ObserveCell_Implementation(TScriptInterface<IFieldObserve
 	if (Observer->GetTopNeighbour(X, Y, BottomNeighbourState) && BottomNeighbourState.BlockID != FCellState::Empty_State)
 	{
 		// update the Bottom neighbour
+		// TODO: Update Bottom Neighbour
 	}
 
 	// Left Cell
@@ -256,6 +259,7 @@ void AWaveCollapseGen::ObserveCell_Implementation(TScriptInterface<IFieldObserve
 	if (Observer->GetTopNeighbour(X, Y, LeftNeighbourState) && LeftNeighbourState.BlockID != FCellState::Empty_State)
 	{
 		// update the Left neighbour
+		// TODO: Update Left Neighbour
 	}
 	LastObserved[0] = X;
 	LastObserved[1] = Y;
