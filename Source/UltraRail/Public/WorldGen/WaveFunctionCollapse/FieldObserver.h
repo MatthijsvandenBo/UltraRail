@@ -2,9 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "Structs/BlockIdConnection.h"
-#include "Structs/BlockState.h"
+#include "Structs/CellState.h"
 #include "UObject/Interface.h"
 #include "FieldObserver.generated.h"
+
+class UBiomeBlockIDs;
 
 // This class does not need to be modified.
 UINTERFACE()
@@ -24,13 +26,19 @@ class ULTRARAIL_API IFieldObserver
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetupField(UBiomeBlockIDs* Data);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool GetCurrentOptimalLocation(int32& X, int32& Y);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void GetFieldState(TArray<FBlockState>& FieldState);
+	void GetFieldState(TArray<FCellState>& FieldState);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	bool GetItem(int32 X, int32 Y, FBlockState& BlockState);
+	bool GetCell(int32 X, int32 Y, FCellState& CellState);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool SetCell(int32 X, int32 Y, FCellState NewCellState);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	int32 GetFieldWidth();
@@ -47,5 +55,14 @@ public:
 	bool AreNeighbouring(TScriptInterface<IFieldObserver>& FieldObserver, int32 X1, int32 Y1, int32 X2, int32 Y2);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void GetNeighbours(int32 X, int32 Y, TArray<FBlockState>& Neighbours);
+	void GetNeighbours(int32 X, int32 Y, TArray<FIntVector>& Neighbours);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool GetTopNeighbour(int32 X, int32 Y, FCellState& TopNeighbour);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool GetRightNeighbour(int32 X, int32 Y, FCellState& RightNeighbour);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool GetBottomNeighbour(int32 X, int32 Y, FCellState& BottomNeighbour);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool GetLeftNeighbour(int32 X, int32 Y, FCellState& LeftNeighbour);
 };

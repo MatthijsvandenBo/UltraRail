@@ -17,6 +17,15 @@ void UBiomeBlockIDs::NormalizeWeights()
 	}
 }
 
+TArray<int32> UBiomeBlockIDs::RegisteredIds() const
+{
+	TArray<int32> Array = {};
+	for (const auto& [_, ID, __] : BlockIdConnections)
+		Array.Add(ID);
+
+	return Array;
+}
+
 
 // LOCAL IMPLEMENTATIONS
 

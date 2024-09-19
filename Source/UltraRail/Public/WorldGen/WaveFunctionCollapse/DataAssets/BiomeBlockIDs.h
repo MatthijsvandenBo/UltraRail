@@ -20,4 +20,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void NormalizeWeights();
+
+	UFUNCTION(BlueprintCallable)
+	TArray<int32> RegisteredIds() const;
 };

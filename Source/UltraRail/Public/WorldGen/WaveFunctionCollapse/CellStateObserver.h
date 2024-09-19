@@ -2,13 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "BlockStateObserver.generated.h"
+#include "CellStateObserver.generated.h"
 
 class IFieldObserver;
 
 // This class does not need to be modified.
 UINTERFACE(Blueprintable)
-class UBlockStateObserver : public UInterface
+class UCellStateObserver : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,7 +16,7 @@ class UBlockStateObserver : public UInterface
 /**
  * 
  */
-class ULTRARAIL_API IBlockStateObserver
+class ULTRARAIL_API ICellStateObserver
 {
 	GENERATED_BODY()
 
@@ -24,7 +24,7 @@ class ULTRARAIL_API IBlockStateObserver
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void ObserveBlock(TScriptInterface<IFieldObserver>& FieldObserver, int32 X, int32 Y);
+	void ObserveCell(TScriptInterface<IFieldObserver>& FieldObserver, int32 X, int32 Y);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void GetLastObserved(int32& X, int32& Y);

@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include "WorldGen/WaveFunctionCollapse/BlockStateObserver.h"
+#include "CellStateObserver.h"
 #include "WorldGen/WaveFunctionCollapse/FieldObserver.h"
 
 #include "WaveCollapseGen.generated.h"
@@ -12,7 +12,7 @@ class UBiomeBlockIDs;
 class ABlock;
 
 UCLASS(Blueprintable, BlueprintType)
-class ULTRARAIL_API AWaveCollapseGen : public AActor, public IBlockStateObserver, public IFieldObserver
+class ULTRARAIL_API AWaveCollapseGen : public AActor, public ICellStateObserver, public IFieldObserver
 {
 	GENERATED_BODY()
 
@@ -46,12 +46,12 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor, public IBlockStateObserver
 	TMap<TSubclassOf<ABlock>, int32> ToIdLookupMap;
 
 	UPROPERTY()
-	TArray<FBlockState> BlockStates;
+	TArray<FCellState> FieldState;
 	UPROPERTY()
 	bool bIsEmpty = true;
 	
 	UPROPERTY()
-	FVector2f LastObserved = {0, 0};
+	FIntVector2 LastObserved = {0, 0};
 
 public:
 	// Sets default values for this actor's properties
@@ -67,19 +67,26 @@ public:
 
 	/// --- Field Observer Overrides
 
+	virtual void SetupField_Implementation(UBiomeBlockIDs* Data) override;
 	virtual bool GetCurrentOptimalLocation_Implementation(int32& X, int32& Y) override;
-	virtual void GetFieldState_Implementation(TArray<FBlockState>& FieldState) override;
-	virtual bool GetItem_Implementation(int32 X, int32 Y, FBlockState& BlockState) override;
+	virtual void GetFieldState_Implementation(TArray<FCellState>& Field) override;
+	virtual bool GetCell_Implementation(int32 X, int32 Y, FCellState& CellState) override;
+	virtual bool SetCell_Implementation(int32 X, int32 Y, FCellState NewCellState) override;
 	virtual int32 GetFieldWidth_Implementation() override;
 	virtual int32 GetFieldDepth_Implementation() override;
 	virtual void TranslateIndexToCart_Implementation(int64 Index, int32& X, int32& Y) override;
 	virtual int64 TranslateIndexFromCart_Implementation(int32 X, int32 Y) override;
 	virtual bool AreNeighbouring_Implementation(TScriptInterface<IFieldObserver>& Observer, int32 X1, int32 Y1, int32 X2, int32 Y2) override;
-	virtual void GetNeighbours_Implementation(int32 X, int32 Y, TArray<FBlockState>& Neighbours) override;
+	virtual void GetNeighbours_Implementation(int32 X, int32 Y, TArray<FIntVector>& Neighbours) override;
+
+	virtual bool GetTopNeighbour_Implementation(int32 X, int32 Y, FCellState& TopNeighbour) override;
+	virtual bool GetRightNeighbour_Implementation(int32 X, int32 Y, FCellState& RightNeighbour) override;
+	virtual bool GetBottomNeighbour_Implementation(int32 X, int32 Y, FCellState& BottomNeighbour) override;
+	virtual bool GetLeftNeighbour_Implementation(int32 X, int32 Y, FCellState& LeftNeighbour) override;
 	
 	/// --- Block State Observer Overrides
 
-	virtual void ObserveBlock_Implementation(TScriptInterface<IFieldObserver>& Observer, int32 X, int32 Y) override;
+	virtual void ObserveCell_Implementation(TScriptInterface<IFieldObserver>& Observer, int32 X, int32 Y) override;
 	virtual void GetLastObserved_Implementation(int32& X, int32& Y) override;
 
 };
