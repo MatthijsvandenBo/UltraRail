@@ -1,8 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Structs/BlockIdConnection.h"
-#include "Structs/CellState.h"
+#include "UltraRail/Public/WorldGen/WaveFunctionCollapse/Structs/CellState.h"
 #include "UObject/Interface.h"
 #include "FieldObserver.generated.h"
 

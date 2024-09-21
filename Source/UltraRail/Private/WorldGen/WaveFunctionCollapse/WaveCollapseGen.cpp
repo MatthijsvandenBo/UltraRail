@@ -1,6 +1,6 @@
 ﻿#include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
-#include "..\..\..\Public\WorldGen\WaveFunctionCollapse\CellStateObserver.h"
-#include "WorldGen/WaveFunctionCollapse/FieldObserver.h"
+#include "WorldGen/WaveFunctionCollapse/Interfaces/CellStateObserver.h"
+#include "WorldGen/WaveFunctionCollapse/Interfaces/FieldObserver.h"
 #include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
 
 

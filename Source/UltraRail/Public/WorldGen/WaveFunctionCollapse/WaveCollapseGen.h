@@ -3,8 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include "CellStateObserver.h"
-#include "WorldGen/WaveFunctionCollapse/FieldObserver.h"
+#include "Interfaces/CellStateObserver.h"
+#include "Interfaces/FieldObserver.h"
 
 #include "WaveCollapseGen.generated.h"
 
