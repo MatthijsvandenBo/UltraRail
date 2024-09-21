@@ -47,8 +47,6 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor, public ICellStateObserver,
 
 	UPROPERTY()
 	TArray<FCellState> FieldState;
-	UPROPERTY()
-	bool bIsEmpty = true;
 	
 	UPROPERTY()
 	FIntVector2 LastObserved = {0, 0};
@@ -66,7 +64,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	/// --- Field Observer Overrides
-
+#pragma region FIELD_OBSERVER_IMPLEMENTATIONS
+	
 	virtual void SetupField_Implementation(UBiomeBlockIDs* Data) override;
 	virtual bool GetCurrentOptimalLocation_Implementation(int32& X, int32& Y) override;
 	virtual void GetFieldState_Implementation(TArray<FCellState>& Field) override;
@@ -83,11 +82,15 @@ public:
 	virtual bool GetRightNeighbour_Implementation(int32 X, int32 Y, FCellState& RightNeighbour) override;
 	virtual bool GetBottomNeighbour_Implementation(int32 X, int32 Y, FCellState& BottomNeighbour) override;
 	virtual bool GetLeftNeighbour_Implementation(int32 X, int32 Y, FCellState& LeftNeighbour) override;
+
+#pragma endregion // FIELD_OBSERVER_IMPLEMENTATION
 	
 	/// --- Block State Observer Overrides
-
-	virtual void ObserveCell_Implementation(TScriptInterface<IFieldObserver>& Observer, int32 X, int32 Y) override;
+#pragma region CELL_OBSERVER_IMPLEMENTATION
+	
+	virtual void ObserveCell_Implementation(UObject* Observer, int32 X, int32 Y) override;
 	virtual void GetLastObserved_Implementation(int32& X, int32& Y) override;
 
+#pragma endregion // CELL_OBSERVER_IMPLEMENTATION
 };
 

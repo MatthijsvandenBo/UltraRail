@@ -24,7 +24,7 @@ class ULTRARAIL_API ICellStateObserver
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void ObserveCell(TScriptInterface<IFieldObserver>& FieldObserver, int32 X, int32 Y);
+	void ObserveCell(UObject* FieldObserver, int32 X, int32 Y);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void GetLastObserved(int32& X, int32& Y);

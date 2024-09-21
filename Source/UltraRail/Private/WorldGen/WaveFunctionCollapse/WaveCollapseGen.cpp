@@ -3,6 +3,11 @@
 #include "WorldGen/WaveFunctionCollapse/Interfaces/FieldObserver.h"
 #include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
 
+#pragma region LOCAL_FUNCTION_DEFINITIONS
+
+bool UpdateCell(FCellState& TargetCell, const TArray<FBlockIdWeight>& AllowedConnectionFilter);
+
+#pragma endregion // LOCAL_FUNCTION_DEFINITIONS
 
 // Sets default values
 AWaveCollapseGen::AWaveCollapseGen()
@@ -40,6 +45,37 @@ void AWaveCollapseGen::BeginPlay()
 	for (const auto& [BlockID, Weight] : FieldState[0].Entropy)
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
 			FString::Printf(TEXT("Id: %d; Weight: %f"), BlockID, Weight));
+
+	
+	// test run
+	int32 OptX = 0;
+	int32 OptY = 0;
+	IFieldObserver::Execute_GetCurrentOptimalLocation(FieldObserver, OptX, OptY);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
+		FString::Printf(TEXT("[%d, %d]"), OptX, OptY));
+	ICellStateObserver::Execute_ObserveCell(BlockStateObserver, FieldObserver, OptX, OptY);
+	
+	FCellState TargetCell;
+	IFieldObserver::Execute_GetCell(FieldObserver, OptX, OptY, TargetCell);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
+		FString::Printf(TEXT("Target-cell id: %d"), TargetCell.BlockID));
+	
+	FCellState RightCell;
+	IFieldObserver::Execute_GetRightNeighbour(FieldObserver, OptX, OptY, RightCell);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
+		FString::Printf(TEXT("Entropy: %d; Weight: %f; first-entr: %d"), RightCell.Entropy.Num(), RightCell.Entropy[0].Weight, RightCell.Entropy[0].BlockID));
+	
+    IFieldObserver::Execute_GetCurrentOptimalLocation(FieldObserver, OptX, OptY);
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
+        FString::Printf(TEXT("[%d, %d]"), OptX, OptY));
+	
+    ICellStateObserver::Execute_ObserveCell(BlockStateObserver, FieldObserver, OptX, OptY);
+    IFieldObserver::Execute_GetCell(FieldObserver, OptX, OptY, TargetCell);
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
+        FString::Printf(TEXT("Target-cell id: %d"), TargetCell.BlockID));
+    IFieldObserver::Execute_GetRightNeighbour(FieldObserver, OptX, OptY, RightCell);
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
+        FString::Printf(TEXT("Entropy: %d; Weight: %f"), RightCell.Entropy.Num(), RightCell.Entropy[0].Weight));
 }
 
 // Called every frame
@@ -59,22 +95,13 @@ void AWaveCollapseGen::SetupField_Implementation(UBiomeBlockIDs* Data)
 }
 
 /// Field Observer Implementations
+#pragma region FIELD_OBSERVER_IMPLEMENTATIONS
 
 bool AWaveCollapseGen::GetCurrentOptimalLocation_Implementation(int32& X, int32& Y)
 {
-	// return the first item 
-	if (bIsEmpty)
-	{
-		X = 0;
-		Y = 0;
-		bIsEmpty = false;
-		return true;
-	}
-
 	const auto& FieldSize = FieldState.Num();
 	int64 BestIndex = -1;
-	const int64 BiomeBlockCount = BiomeBlockIDs->BlockIdConnections.Num();
-	int64 LowestEntropy = BiomeBlockCount;
+	int64 LowestEntropy = BiomeBlockIDs->BlockIdConnections.Num() + 1;
 
 	for (int64 i = 0; i < FieldSize; i++)
 	{
@@ -88,6 +115,10 @@ bool AWaveCollapseGen::GetCurrentOptimalLocation_Implementation(int32& X, int32&
 			LowestEntropy = IndexedEntropy;
 			BestIndex = i;
 		}
+
+		// When the entropy is 1. We can immediately break out the loop as there can not be a lower entropy
+		if (LowestEntropy == 1)
+			break;
 	}
 
 	if (BestIndex == -1)
@@ -109,12 +140,24 @@ void AWaveCollapseGen::GetFieldState_Implementation(TArray<FCellState>& Field)
 bool AWaveCollapseGen::GetCell_Implementation(
 	const int32 X, const int32 Y, FCellState& CellState)
 {
+	const auto Width = IFieldObserver::Execute_GetFieldWidth(FieldObserver);
+	const auto Depth = IFieldObserver::Execute_GetFieldDepth(FieldObserver);
+
+	if (X < 0 || X >= Width || Y < 0 || Y >= Depth)
+		return false;
+	
 	CellState = FieldState[IFieldObserver::Execute_TranslateIndexFromCart(FieldObserver, X, Y)];
 	return true;
 }
 
 bool AWaveCollapseGen::SetCell_Implementation(const int32 X, const int32 Y, const FCellState NewCellState)
 {
+	const auto Width = IFieldObserver::Execute_GetFieldWidth(FieldObserver);
+	const auto Depth = IFieldObserver::Execute_GetFieldDepth(FieldObserver);
+
+	if (X < 0 || X >= Width || Y < 0 || Y >= Depth)
+		return false;
+	
 	const auto Index = IFieldObserver::Execute_TranslateIndexFromCart(FieldObserver, X, Y);
 	FieldState[Index] = NewCellState;
 	return true;
@@ -213,13 +256,15 @@ bool AWaveCollapseGen::GetLeftNeighbour_Implementation(int32 X, int32 Y, FCellSt
 	return IFieldObserver::Execute_GetCell(FieldObserver, X - 1, Y, LeftNeighbour);
 }
 
-/// Block State Observer Implementations
+#pragma endregion // FIELD_OBSERVER_IMPLEMENTATIONS
 
-void AWaveCollapseGen::ObserveCell_Implementation(TScriptInterface<IFieldObserver>& Observer, const int32 X, const int32 Y)
+/// Block State Observer Implementations
+#pragma region CELL_OBSERVER_IMPLEMENTATIONS
+
+void AWaveCollapseGen::ObserveCell_Implementation(UObject* Observer, const int32 X, const int32 Y)
 {
-	ICellStateObserver::ObserveCell_Implementation(Observer, X, Y);
 	FCellState CellState;
-	if (!Observer->GetCell(X, Y, CellState))
+	if (!IFieldObserver::Execute_GetCell(Observer, X, Y, CellState))
 		return;
 
 	// Update the state
@@ -228,42 +273,60 @@ void AWaveCollapseGen::ObserveCell_Implementation(TScriptInterface<IFieldObserve
 	CellState.Entropy.Empty();
 
 	// Insert the state
-	Observer->SetCell(X, Y, CellState);
+	IFieldObserver::Execute_SetCell(Observer, X, Y, CellState);
 
+	// Retrieve the rule-set of the collapsed id
+	const auto* RuleSet = BiomeBlockIDs->BlockIdConnections.FindByPredicate([&FilterId = CellState.BlockID](const FBlockIdConnection& IdConnection)
+	{
+		return IdConnection.ID == FilterId;
+	});
+	
+	// Should never be possible, but you can never be too sure
+	if (RuleSet == nullptr)
+	{
+		// TODO: Log out a warning!
+	}
+
+	FCellState NeighbourState;
+	
 	// Top Cell
-	FCellState TopNeighbourState;
-	if (Observer->GetTopNeighbour(X, Y, TopNeighbourState) && TopNeighbourState.BlockID != FCellState::Empty_State)
+	if (IFieldObserver::Execute_GetTopNeighbour(Observer, X, Y, NeighbourState) &&
+		NeighbourState.BlockID == FCellState::Empty_State)
 	{
 		// update the Top neighbour
-		// TODO: Update Top Neighbour
+		UpdateCell(NeighbourState, RuleSet->CollapseSettings.AllowedTopIDs);
+		IFieldObserver::Execute_SetCell(Observer, X, Y + 1, NeighbourState);
 	}
 
 	// Right Cell
-	FCellState RightNeighbourState;
-	if (Observer->GetTopNeighbour(X, Y, RightNeighbourState) && RightNeighbourState.BlockID != FCellState::Empty_State)
+	if (IFieldObserver::Execute_GetRightNeighbour(Observer, X, Y, NeighbourState) &&
+		NeighbourState.BlockID == FCellState::Empty_State)
 	{
 		// update the Right neighbour
-		// TODO: Update Right Neighbour
+		UpdateCell(NeighbourState, RuleSet->CollapseSettings.AllowedRightIDs);
+		IFieldObserver::Execute_SetCell(Observer, X + 1, Y, NeighbourState);
 	}
 
 	// Bottom Cell
-	FCellState BottomNeighbourState;
-	if (Observer->GetTopNeighbour(X, Y, BottomNeighbourState) && BottomNeighbourState.BlockID != FCellState::Empty_State)
+	if (IFieldObserver::Execute_GetBottomNeighbour(Observer, X, Y, NeighbourState) &&
+		NeighbourState.BlockID == FCellState::Empty_State)
 	{
 		// update the Bottom neighbour
-		// TODO: Update Bottom Neighbour
+		UpdateCell(NeighbourState, RuleSet->CollapseSettings.AllowedBottomIDs);
+		IFieldObserver::Execute_SetCell(Observer, X, Y - 1, NeighbourState);
 	}
 
 	// Left Cell
-	FCellState LeftNeighbourState;
-	if (Observer->GetTopNeighbour(X, Y, LeftNeighbourState) && LeftNeighbourState.BlockID != FCellState::Empty_State)
+	if (IFieldObserver::Execute_GetLeftNeighbour(Observer, X, Y, NeighbourState) &&
+		NeighbourState.BlockID == FCellState::Empty_State)
 	{
 		// update the Left neighbour
-		// TODO: Update Left Neighbour
+		UpdateCell(NeighbourState, RuleSet->CollapseSettings.AllowedLeftIDs);
+		IFieldObserver::Execute_SetCell(Observer, X - 1, Y, NeighbourState);
 	}
+	
 	LastObserved[0] = X;
 	LastObserved[1] = Y;
-	
 }
 
 void AWaveCollapseGen::GetLastObserved_Implementation(int32& X, int32& Y)
@@ -271,3 +334,56 @@ void AWaveCollapseGen::GetLastObserved_Implementation(int32& X, int32& Y)
 	X = LastObserved[0];
 	Y = LastObserved[1];
 }
+
+#pragma endregion // CELL_OBSERVER_IMPLEMENTATIONS
+
+#pragma region LOCAL_FUNCTION_IMPLEMENTATION
+
+bool UpdateCell(
+	FCellState& TargetCell,
+	const TArray<FBlockIdWeight>& AllowedConnectionFilter)
+{
+	if (TargetCell.BlockID != FCellState::Empty_State ||
+		AllowedConnectionFilter.IsEmpty())
+		return false;
+
+	// Split the TargetCell into references to both the block id and the entropy
+	auto& [TargetID, TargetEntropy] = TargetCell;
+
+	// Transform the AllowedConnectionFilter array from [ID, WEIGHT] -> ID
+	TArray<int32> AllowedConnectionIDs = {};
+	AllowedConnectionIDs.Init(0, AllowedConnectionFilter.Num());
+	for (int64 i = 0; i < AllowedConnectionFilter.Num(); i++)
+		AllowedConnectionIDs[i] = AllowedConnectionFilter[i].BlockID;
+
+	// Filter out the not-allowed connected id's
+	auto NewEntropy = TargetEntropy.FilterByPredicate([&AllowedConnectionIDs](const FBlockIdWeight& EntropyEntry)
+	{
+		return AllowedConnectionIDs.Contains(EntropyEntry.BlockID);
+	});
+
+	// Restructure the weight values
+	
+	for (auto& [ID, Weight] : NewEntropy)
+	{
+		const auto AddedWeight = AllowedConnectionFilter.FindByPredicate([&ID](const FBlockIdWeight& EntropyEntry)
+		{
+			return EntropyEntry.BlockID == ID;
+		})->Weight;
+
+		Weight += AddedWeight;
+	}
+
+	// Normalize the weights 
+	float TotalWeightValue = 0.f;
+	for (auto& [_, Weight] : NewEntropy)
+		TotalWeightValue += Weight;
+	for (auto& [_, Weight] : NewEntropy)
+		Weight /= TotalWeightValue;
+
+	// Set the new entropy to the cell
+	TargetEntropy = NewEntropy;
+	return true;
+}
+
+#pragma endregion // LOCAL_FUNCTION_IMPLEMENTATIONS
