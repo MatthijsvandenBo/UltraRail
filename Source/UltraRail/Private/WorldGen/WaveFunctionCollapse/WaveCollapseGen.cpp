@@ -84,6 +84,9 @@ void AWaveCollapseGen::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+/// Field Observer Implementations
+#pragma region FIELD_OBSERVER_IMPLEMENTATIONS
+
 void AWaveCollapseGen::SetupField_Implementation(UBiomeBlockIDs* Data)
 {
 	const auto RegisteredIds = Data->RegisteredIds();
@@ -93,9 +96,6 @@ void AWaveCollapseGen::SetupField_Implementation(UBiomeBlockIDs* Data)
 	
 	FieldState.Init({FCellState::Empty_State, Weights}, GridWidth * GridDepth);
 }
-
-/// Field Observer Implementations
-#pragma region FIELD_OBSERVER_IMPLEMENTATIONS
 
 bool AWaveCollapseGen::GetCurrentOptimalLocation_Implementation(int32& X, int32& Y)
 {

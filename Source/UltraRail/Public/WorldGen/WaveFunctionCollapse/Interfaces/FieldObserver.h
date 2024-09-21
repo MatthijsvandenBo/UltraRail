@@ -24,44 +24,44 @@ class ULTRARAIL_API IFieldObserver
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	void SetupField(UBiomeBlockIDs* Data);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetCurrentOptimalLocation(int32& X, int32& Y);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	void GetFieldState(TArray<FCellState>& FieldState);
 	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetCell(int32 X, int32 Y, FCellState& CellState);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool SetCell(int32 X, int32 Y, FCellState NewCellState);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	int32 GetFieldWidth();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	int32 GetFieldDepth();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	void TranslateIndexToCart(int64 Index, int32& X, int32& Y);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	int64 TranslateIndexFromCart(int32 X, int32 Y);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool AreNeighbouring(TScriptInterface<IFieldObserver>& FieldObserver, int32 X1, int32 Y1, int32 X2, int32 Y2);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	void GetNeighbours(int32 X, int32 Y, TArray<FIntVector>& Neighbours);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetTopNeighbour(int32 X, int32 Y, FCellState& TopNeighbour);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetRightNeighbour(int32 X, int32 Y, FCellState& RightNeighbour);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetBottomNeighbour(int32 X, int32 Y, FCellState& BottomNeighbour);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetLeftNeighbour(int32 X, int32 Y, FCellState& LeftNeighbour);
 };
