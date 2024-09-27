@@ -52,10 +52,10 @@ void AWaveCollapseGen::BeginPlay()
 	}
 	
 	// setup of the block states array
-	IFieldObserver::Execute_SetupField(FieldObserver, BiomeBlockIDs, GridWidth, GridDepth);
-	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 	AsyncTask(ENamedThreads::Type::AnyBackgroundThreadNormalTask, [this]
 	{
+		IFieldObserver::Execute_SetupField(FieldObserver, BiomeBlockIDs, GridWidth, GridDepth);
+		ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 		CollapseField();
 	});
 }
@@ -71,7 +71,6 @@ void AWaveCollapseGen::OnCellCollapsed(
 {
 	AsyncTask(ENamedThreads::Type::GameThread, [this, CellState, X, Y]
 	{
-
 		const auto SpawnedClass = ToBlockLookupMap.Find(CellState.BlockID);
 		if (SpawnedClass == nullptr)
 		{
@@ -95,7 +94,9 @@ void AWaveCollapseGen::CollapseField()
 	int32 OptY = 0;
 
 	while (IFieldObserver::Execute_GetCurrentOptimalLocation(FieldObserver, OptX, OptY))
-		ICellStateObserver::Execute_ObserveCell(CellStateObserver, FieldObserver, OptX, OptY);	
+		ICellStateObserver::Execute_ObserveCell(CellStateObserver, FieldObserver, OptX, OptY);
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Collapsed field"));
 }
 
 /// Field Observer Implementations
