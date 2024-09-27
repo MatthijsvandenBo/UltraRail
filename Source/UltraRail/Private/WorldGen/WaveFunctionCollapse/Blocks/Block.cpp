@@ -13,7 +13,6 @@ ABlock::ABlock()
 	BlockMesh->SetSimulatePhysics(false);
 	BlockMesh->SetEnableGravity(false);
 	BlockMesh->SetMobility(EComponentMobility::Stationary);
-	//BlockMesh->SetWorldScale3D({0.5f, 0.5f, 0.5f});
 }
 
 // Called when the game starts or when spawned

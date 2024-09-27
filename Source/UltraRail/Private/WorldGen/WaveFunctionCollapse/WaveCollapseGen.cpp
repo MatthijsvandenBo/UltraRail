@@ -1,6 +1,4 @@
 ﻿#include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
-
-#include "Kismet/KismetMathLibrary.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/CellStateObserver.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/FieldObserver.h"
 #include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
@@ -26,14 +24,14 @@ void AWaveCollapseGen::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (BlockStateObserver == nullptr || FieldObserver == nullptr)
+	if (CellStateObserver == nullptr || FieldObserver == nullptr)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red,
 			TEXT("Either one of the observers is a null pointer"));
 		return;
 	}
 	if (
-		!BlockStateObserver->Implements<UCellStateObserver>() ||
+		!CellStateObserver->Implements<UCellStateObserver>() ||
 		!FieldObserver->Implements<UFieldObserver>()
 	)
 	{
@@ -54,10 +52,7 @@ void AWaveCollapseGen::BeginPlay()
 	
 	// setup of the block states array
 	IFieldObserver::Execute_SetupField(FieldObserver, BiomeBlockIDs, GridWidth, GridDepth);
-	for (const auto& [BlockID, Weight] : FieldState[0].Entropy)
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
-			FString::Printf(TEXT("Id: %d; Weight: %f"), BlockID, Weight));
-
+	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 	CollapseField();
 }
 
@@ -78,7 +73,7 @@ void AWaveCollapseGen::OnCellCollapsed(
 		return;
 	}
 
-	const FVector TwoDCoordinate = {X * GridSize, Y * GridSize, 0};
+	const FVector TwoDCoordinate = {Y * GridSize, X * GridSize, 0};
 	
 	GetWorld()->SpawnActor(
 		SpawnedClass->Get(),
@@ -92,7 +87,7 @@ void AWaveCollapseGen::CollapseField()
 	int32 OptY = 0;
 
 	while (IFieldObserver::Execute_GetCurrentOptimalLocation(FieldObserver, OptX, OptY))
-		ICellStateObserver::Execute_ObserveCell(BlockStateObserver, FieldObserver, OptX, OptY);	
+		ICellStateObserver::Execute_ObserveCell(CellStateObserver, FieldObserver, OptX, OptY);	
 }
 
 /// Field Observer Implementations
@@ -140,7 +135,7 @@ bool AWaveCollapseGen::GetCurrentOptimalLocation_Implementation(int32& X, int32&
 		return false;
 	}
 
-	IFieldObserver::Execute_TranslateIndexToCart(FieldObserver, BestIndex, X, Y);
+	TranslateIndexToCart(BestIndex, X, Y);
 	return true;
 }
 
@@ -152,119 +147,51 @@ void AWaveCollapseGen::GetFieldState_Implementation(TArray<FCellState>& Field)
 bool AWaveCollapseGen::GetCell_Implementation(
 	const int32 X, const int32 Y, FCellState& CellState)
 {
-	const auto Width = IFieldObserver::Execute_GetFieldWidth(FieldObserver);
-	const auto Depth = IFieldObserver::Execute_GetFieldDepth(FieldObserver);
-
-	if (X < 0 || X >= Width || Y < 0 || Y >= Depth)
+	if (X < 0 || X >= GridWidth || Y < 0 || Y >= GridDepth)
 		return false;
 	
-	CellState = FieldState[IFieldObserver::Execute_TranslateIndexFromCart(FieldObserver, X, Y)];
+	CellState = FieldState[TranslateIndexFromCart(X, Y)];
 	return true;
 }
 
 bool AWaveCollapseGen::SetCell_Implementation(const int32 X, const int32 Y, const FCellState NewCellState)
 {
-	const auto Width = IFieldObserver::Execute_GetFieldWidth(FieldObserver);
-	const auto Depth = IFieldObserver::Execute_GetFieldDepth(FieldObserver);
-
-	if (X < 0 || X >= Width || Y < 0 || Y >= Depth)
+	if (X < 0 || X >= GridWidth || Y < 0 || Y >= GridDepth)
 		return false;
 	
-	const auto Index = IFieldObserver::Execute_TranslateIndexFromCart(FieldObserver, X, Y);
+	const auto Index = TranslateIndexFromCart(X, Y);
 	FieldState[Index] = NewCellState;
 	return true;
 }
 
-int32 AWaveCollapseGen::GetFieldWidth_Implementation()
+void AWaveCollapseGen::TranslateIndexToCart(const int64 Index, int32& X, int32& Y) const
 {
-	return GridWidth;
+	X = Index % GridWidth;
+	Y = Index / GridWidth;
 }
 
-int32 AWaveCollapseGen::GetFieldDepth_Implementation()
+int64 AWaveCollapseGen::TranslateIndexFromCart(const int32 X, const int32 Y) const
 {
-	return GridDepth;
-}
-
-void AWaveCollapseGen::TranslateIndexToCart_Implementation(const int64 Index, int32& X, int32& Y)
-{
-	X = Index % IFieldObserver::Execute_GetFieldWidth(FieldObserver);
-	Y = Index / IFieldObserver::Execute_GetFieldDepth(FieldObserver);
-}
-
-int64 AWaveCollapseGen::TranslateIndexFromCart_Implementation(const int32 X, const int32 Y)
-{
-	return Y * IFieldObserver::Execute_GetFieldWidth(FieldObserver) + X;
-}
-
-bool AWaveCollapseGen::AreNeighbouring_Implementation(
-	TScriptInterface<IFieldObserver>& Observer, const int32 X1, const int32 Y1, const int32 X2, const int32 Y2)
-{
-	const auto Width = Observer->GetFieldWidth();
-	const auto Depth = Observer->GetFieldDepth();
-	
-	if (X1 > Width || X1 < 0 ||
-		X2 > Width || X2 < 0 ||
-		Y1 > Depth || Y1 < 0 ||
-		Y2 > Depth || Y2 < 0)
-		return false;
-		
-	return abs(X2 - X1) ^ abs(Y2 - Y1);
-}
-
-void AWaveCollapseGen::GetNeighbours_Implementation(const int32 X, const int32 Y, TArray<FIntVector>& Neighbours)
-{
-	Neighbours = {};
-	const auto Width = IFieldObserver::Execute_GetFieldWidth(FieldObserver);
-	const auto Depth = IFieldObserver::Execute_GetFieldDepth(FieldObserver);
-
-	// Top
-	if (Y < Depth)
-		Neighbours.Add({X, Y + 1, 1});
-
-	// Right
-	if (X < Width)
-		Neighbours.Add({X + 1, Y, 1});
-
-	// Bottom
-	if (Y > 0)
-		Neighbours.Add({X, Y - 1, 1});
-
-	// Left
-	if (X > 0)
-		Neighbours.Add({X - 1, Y, 1});
+	return Y * GridWidth + X;
 }
 
 bool AWaveCollapseGen::GetTopNeighbour_Implementation(const int32 X, const int32 Y, FCellState& TopNeighbour)
 {
-	const auto Depth = IFieldObserver::Execute_GetFieldDepth(FieldObserver);
-	if (Y >= Depth)
-		return false;
-
 	return IFieldObserver::Execute_GetCell(FieldObserver, X, Y + 1, TopNeighbour);
 }
 
 bool AWaveCollapseGen::GetRightNeighbour_Implementation(int32 X, int32 Y, FCellState& RightNeighbour)
 {
-	const auto Width = IFieldObserver::Execute_GetFieldWidth(FieldObserver);
-	if (X >= Width)
-		return false;
-
 	return IFieldObserver::Execute_GetCell(FieldObserver, X + 1, Y, RightNeighbour);
 }
 
 bool AWaveCollapseGen::GetBottomNeighbour_Implementation(int32 X, int32 Y, FCellState& BottomNeighbour)
 {
-	if (Y <= 0)
-		return false;
-
 	return IFieldObserver::Execute_GetCell(FieldObserver, X, Y - 1, BottomNeighbour);
 }
 
 bool AWaveCollapseGen::GetLeftNeighbour_Implementation(int32 X, int32 Y, FCellState& LeftNeighbour)
 {
-	if (X <= 0)
-		return false;
-
 	return IFieldObserver::Execute_GetCell(FieldObserver, X - 1, Y, LeftNeighbour);
 }
 
@@ -281,7 +208,7 @@ void AWaveCollapseGen::SetupCellObserver_Implementation(AWaveCollapseGen* WaveCo
 void AWaveCollapseGen::ObserveCell_Implementation(UObject* Observer, const int32 X, const int32 Y)
 {
 	FCellState CellState;
-	if (!IFieldObserver::Execute_GetCell(Observer, X, Y, CellState))
+	if (!IFieldObserver::Execute_GetCell(Observer, X, Y, CellState) && CellState.BlockID != FCellState::Empty_State)
 		return;
 
 	// Update the state

@@ -40,23 +40,6 @@ public:
 	bool SetCell(int32 X, int32 Y, FCellState NewCellState);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	int32 GetFieldWidth();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	int32 GetFieldDepth();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	void TranslateIndexToCart(int64 Index, int32& X, int32& Y);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	int64 TranslateIndexFromCart(int32 X, int32 Y);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	bool AreNeighbouring(TScriptInterface<IFieldObserver>& FieldObserver, int32 X1, int32 Y1, int32 X2, int32 Y2);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	void GetNeighbours(int32 X, int32 Y, TArray<FIntVector>& Neighbours);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetTopNeighbour(int32 X, int32 Y, FCellState& TopNeighbour);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetRightNeighbour(int32 X, int32 Y, FCellState& RightNeighbour);

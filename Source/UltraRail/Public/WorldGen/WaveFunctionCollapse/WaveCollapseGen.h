@@ -38,7 +38,7 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor, public ICellStateObserver,
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Generation",
 		meta=(AllowPrivateAccess))
-	TObjectPtr<AActor> BlockStateObserver = nullptr;
+	TObjectPtr<AActor> CellStateObserver = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Generation",
 		meta=(AllowPrivateAccess))
 	TObjectPtr<AActor> FieldObserver = nullptr;
@@ -75,6 +75,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CollapseField();
 
+	UFUNCTION(BlueprintCallable)
+	void TranslateIndexToCart(int64 Index, int32& X, int32& Y) const;
+	UFUNCTION(BlueprintCallable)
+	int64 TranslateIndexFromCart(int32 X, int32 Y) const;
+
 	/// --- Field Observer Overrides
 #pragma region FIELD_OBSERVER_IMPLEMENTATIONS
 	
@@ -83,12 +88,6 @@ public:
 	virtual void GetFieldState_Implementation(TArray<FCellState>& Field) override;
 	virtual bool GetCell_Implementation(int32 X, int32 Y, FCellState& CellState) override;
 	virtual bool SetCell_Implementation(int32 X, int32 Y, FCellState NewCellState) override;
-	virtual int32 GetFieldWidth_Implementation() override;
-	virtual int32 GetFieldDepth_Implementation() override;
-	virtual void TranslateIndexToCart_Implementation(int64 Index, int32& X, int32& Y) override;
-	virtual int64 TranslateIndexFromCart_Implementation(int32 X, int32 Y) override;
-	virtual bool AreNeighbouring_Implementation(TScriptInterface<IFieldObserver>& Observer, int32 X1, int32 Y1, int32 X2, int32 Y2) override;
-	virtual void GetNeighbours_Implementation(int32 X, int32 Y, TArray<FIntVector>& Neighbours) override;
 
 	virtual bool GetTopNeighbour_Implementation(int32 X, int32 Y, FCellState& TopNeighbour) override;
 	virtual bool GetRightNeighbour_Implementation(int32 X, int32 Y, FCellState& RightNeighbour) override;
