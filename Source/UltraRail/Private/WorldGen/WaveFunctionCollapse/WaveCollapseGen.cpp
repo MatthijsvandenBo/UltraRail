@@ -1,4 +1,5 @@
 ﻿#include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
+
 #include "WorldGen/WaveFunctionCollapse/Interfaces/CellStateObserver.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/FieldObserver.h"
 #include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
@@ -53,7 +54,10 @@ void AWaveCollapseGen::BeginPlay()
 	// setup of the block states array
 	IFieldObserver::Execute_SetupField(FieldObserver, BiomeBlockIDs, GridWidth, GridDepth);
 	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
-	CollapseField();
+	AsyncTask(ENamedThreads::Type::AnyBackgroundThreadNormalTask, [this]
+	{
+		CollapseField();
+	});
 }
 
 // Called every frame
@@ -65,20 +69,24 @@ void AWaveCollapseGen::Tick(float DeltaTime)
 void AWaveCollapseGen::OnCellCollapsed(
 	const FCellState& CellState, const int32 X, const int32 Y)
 {
-	const auto SpawnedClass = ToBlockLookupMap.Find(CellState.BlockID);
-	if (SpawnedClass == nullptr)
+	AsyncTask(ENamedThreads::Type::GameThread, [this, CellState, X, Y]
 	{
-		// Log out that the id was invalid (should not be possible)
-		UE_LOG(LogWaveFunctionCollapse, Error, TEXT("Lookup for block id `%d` failed"), CellState.BlockID);
-		return;
-	}
 
-	const FVector TwoDCoordinate = {Y * GridSize, X * GridSize, 0};
-	
-	GetWorld()->SpawnActor(
-		SpawnedClass->Get(),
-		&TwoDCoordinate
-	);
+		const auto SpawnedClass = ToBlockLookupMap.Find(CellState.BlockID);
+		if (SpawnedClass == nullptr)
+		{
+			// Log out that the id was invalid (should not be possible)
+			UE_LOG(LogWaveFunctionCollapse, Error, TEXT("Lookup for block id `%d` failed"), CellState.BlockID);
+			return;
+		}
+
+		const FVector TwoDCoordinate = {Y * GridSize, X * GridSize, 0};
+		
+		GetWorld()->SpawnActor(
+    		SpawnedClass->Get(),
+    		&TwoDCoordinate
+    	);	
+	});
 }
 
 void AWaveCollapseGen::CollapseField()
