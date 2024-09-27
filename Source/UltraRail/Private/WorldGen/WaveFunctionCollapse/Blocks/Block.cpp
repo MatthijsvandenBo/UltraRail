@@ -7,10 +7,13 @@ ABlock::ABlock()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BlockMesh = CreateDefaultSubobject<UStaticMeshComponent>("BlockMesh");
+	RootComponent = BlockMesh;
 	
 	// blocks are stationary for the ground, no physics or gravity
 	BlockMesh->SetSimulatePhysics(false);
 	BlockMesh->SetEnableGravity(false);
+	BlockMesh->SetMobility(EComponentMobility::Stationary);
+	//BlockMesh->SetWorldScale3D({0.5f, 0.5f, 0.5f});
 }
 
 // Called when the game starts or when spawned

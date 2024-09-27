@@ -25,7 +25,7 @@ class ULTRARAIL_API IFieldObserver
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	void SetupField(UBiomeBlockIDs* Data);
+	void SetupField(UBiomeBlockIDs* Data, int32 Width, int32 Depth);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetCurrentOptimalLocation(int32& X, int32& Y);

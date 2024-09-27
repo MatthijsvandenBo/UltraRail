@@ -1,13 +1,18 @@
 ﻿#include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
+
+#include "Kismet/KismetMathLibrary.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/CellStateObserver.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/FieldObserver.h"
 #include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
+#include "WorldGen/WaveFunctionCollapse/Blocks/Block.h"
 
 #pragma region LOCAL_FUNCTION_DEFINITIONS
 
 bool UpdateCell(FCellState& TargetCell, const TArray<FBlockIdWeight>& AllowedConnectionFilter);
 
 #pragma endregion // LOCAL_FUNCTION_DEFINITIONS
+
+DEFINE_LOG_CATEGORY(LogWaveFunctionCollapse);
 
 // Sets default values
 AWaveCollapseGen::AWaveCollapseGen()
@@ -39,43 +44,21 @@ void AWaveCollapseGen::BeginPlay()
 
 	// Normalize the id connection weights
 	BiomeBlockIDs->NormalizeWeights();
+
+	// setup the lookup tables
+	for (const auto& [BlockClass, BlockID, _] : BiomeBlockIDs->BlockIdConnections)
+	{
+		ToBlockLookupMap.Add(BlockID, BlockClass);
+		ToIdLookupMap.Add(BlockClass, BlockID);
+	}
 	
 	// setup of the block states array
-	IFieldObserver::Execute_SetupField(FieldObserver, BiomeBlockIDs);
+	IFieldObserver::Execute_SetupField(FieldObserver, BiomeBlockIDs, GridWidth, GridDepth);
 	for (const auto& [BlockID, Weight] : FieldState[0].Entropy)
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
 			FString::Printf(TEXT("Id: %d; Weight: %f"), BlockID, Weight));
 
-	
-	// test run
-	int32 OptX = 0;
-	int32 OptY = 0;
-	IFieldObserver::Execute_GetCurrentOptimalLocation(FieldObserver, OptX, OptY);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
-		FString::Printf(TEXT("[%d, %d]"), OptX, OptY));
-	ICellStateObserver::Execute_ObserveCell(BlockStateObserver, FieldObserver, OptX, OptY);
-	
-	FCellState TargetCell;
-	IFieldObserver::Execute_GetCell(FieldObserver, OptX, OptY, TargetCell);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
-		FString::Printf(TEXT("Target-cell id: %d"), TargetCell.BlockID));
-	
-	FCellState RightCell;
-	IFieldObserver::Execute_GetRightNeighbour(FieldObserver, OptX, OptY, RightCell);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
-		FString::Printf(TEXT("Entropy: %d; Weight: %f; first-entr: %d"), RightCell.Entropy.Num(), RightCell.Entropy[0].Weight, RightCell.Entropy[0].BlockID));
-	
-    IFieldObserver::Execute_GetCurrentOptimalLocation(FieldObserver, OptX, OptY);
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
-        FString::Printf(TEXT("[%d, %d]"), OptX, OptY));
-	
-    ICellStateObserver::Execute_ObserveCell(BlockStateObserver, FieldObserver, OptX, OptY);
-    IFieldObserver::Execute_GetCell(FieldObserver, OptX, OptY, TargetCell);
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
-        FString::Printf(TEXT("Target-cell id: %d"), TargetCell.BlockID));
-    IFieldObserver::Execute_GetRightNeighbour(FieldObserver, OptX, OptY, RightCell);
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan,
-        FString::Printf(TEXT("Entropy: %d; Weight: %f"), RightCell.Entropy.Num(), RightCell.Entropy[0].Weight));
+	CollapseField();
 }
 
 // Called every frame
@@ -84,10 +67,39 @@ void AWaveCollapseGen::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AWaveCollapseGen::OnCellCollapsed(
+	const FCellState& CellState, const int32 X, const int32 Y)
+{
+	const auto SpawnedClass = ToBlockLookupMap.Find(CellState.BlockID);
+	if (SpawnedClass == nullptr)
+	{
+		// Log out that the id was invalid (should not be possible)
+		UE_LOG(LogWaveFunctionCollapse, Error, TEXT("Lookup for block id `%d` failed"), CellState.BlockID);
+		return;
+	}
+
+	const FVector TwoDCoordinate = {X * GridSize, Y * GridSize, 0};
+	
+	GetWorld()->SpawnActor(
+		SpawnedClass->Get(),
+		&TwoDCoordinate
+	);
+}
+
+void AWaveCollapseGen::CollapseField()
+{
+	int32 OptX = 0;
+	int32 OptY = 0;
+
+	while (IFieldObserver::Execute_GetCurrentOptimalLocation(FieldObserver, OptX, OptY))
+		ICellStateObserver::Execute_ObserveCell(BlockStateObserver, FieldObserver, OptX, OptY);	
+}
+
 /// Field Observer Implementations
 #pragma region FIELD_OBSERVER_IMPLEMENTATIONS
 
-void AWaveCollapseGen::SetupField_Implementation(UBiomeBlockIDs* Data)
+void AWaveCollapseGen::SetupField_Implementation(
+	UBiomeBlockIDs* Data, const int32 Width, const int32 Depth)
 {
 	const auto RegisteredIds = Data->RegisteredIds();
 	TArray<FBlockIdWeight> Weights = {};
@@ -261,6 +273,11 @@ bool AWaveCollapseGen::GetLeftNeighbour_Implementation(int32 X, int32 Y, FCellSt
 /// Block State Observer Implementations
 #pragma region CELL_OBSERVER_IMPLEMENTATIONS
 
+void AWaveCollapseGen::SetupCellObserver_Implementation(AWaveCollapseGen* WaveCollapseGen)
+{
+	ICellStateObserver::SetupCellObserver_Implementation(WaveCollapseGen);
+}
+
 void AWaveCollapseGen::ObserveCell_Implementation(UObject* Observer, const int32 X, const int32 Y)
 {
 	FCellState CellState;
@@ -284,7 +301,8 @@ void AWaveCollapseGen::ObserveCell_Implementation(UObject* Observer, const int32
 	// Should never be possible, but you can never be too sure
 	if (RuleSet == nullptr)
 	{
-		// TODO: Log out a warning!
+		UE_LOG(LogWaveFunctionCollapse, Error, TEXT("Rule-set on id `%d` could not be found"), CellState.BlockID);
+		return;
 	}
 
 	FCellState NeighbourState;
@@ -327,6 +345,9 @@ void AWaveCollapseGen::ObserveCell_Implementation(UObject* Observer, const int32
 	
 	LastObserved[0] = X;
 	LastObserved[1] = Y;
+
+	// Notify the wave function collapser that a cell has been collapsed
+	OnCellCollapsed(CellState, X, Y);
 }
 
 void AWaveCollapseGen::GetLastObserved_Implementation(int32& X, int32& Y)

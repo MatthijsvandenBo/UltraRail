@@ -11,6 +11,8 @@
 class UBiomeBlockIDs;
 class ABlock;
 
+DECLARE_LOG_CATEGORY_EXTERN(LogWaveFunctionCollapse, Log, All);
+
 UCLASS(Blueprintable, BlueprintType)
 class ULTRARAIL_API AWaveCollapseGen : public AActor, public ICellStateObserver, public IFieldObserver
 {
@@ -25,6 +27,10 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor, public ICellStateObserver,
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
 		meta=(AllowPrivateAccess))
 	int32 GridDepth = 10;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
+		meta=(AllowPrivateAccess))
+	float GridSize = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blocks",
 		meta=(AllowPrivateAccess))
@@ -63,10 +69,16 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	void OnCellCollapsed(const FCellState& CellState, int32 X, int32 Y);
+
+	UFUNCTION(BlueprintCallable)
+	void CollapseField();
+
 	/// --- Field Observer Overrides
 #pragma region FIELD_OBSERVER_IMPLEMENTATIONS
 	
-	virtual void SetupField_Implementation(UBiomeBlockIDs* Data) override;
+	virtual void SetupField_Implementation(UBiomeBlockIDs* Data, int32 Width, int32 Depth) override;
 	virtual bool GetCurrentOptimalLocation_Implementation(int32& X, int32& Y) override;
 	virtual void GetFieldState_Implementation(TArray<FCellState>& Field) override;
 	virtual bool GetCell_Implementation(int32 X, int32 Y, FCellState& CellState) override;
@@ -87,7 +99,8 @@ public:
 	
 	/// --- Block State Observer Overrides
 #pragma region CELL_OBSERVER_IMPLEMENTATION
-	
+
+	virtual void SetupCellObserver_Implementation(AWaveCollapseGen* WaveCollapseGen) override;
 	virtual void ObserveCell_Implementation(UObject* Observer, int32 X, int32 Y) override;
 	virtual void GetLastObserved_Implementation(int32& X, int32& Y) override;
 
