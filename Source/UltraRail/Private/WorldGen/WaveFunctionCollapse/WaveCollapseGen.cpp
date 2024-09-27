@@ -212,7 +212,22 @@ void AWaveCollapseGen::ObserveCell_Implementation(UObject* Observer, const int32
 		return;
 
 	// Update the state
-	const auto ChosenCollapseValue = FMath::RandRange(0, CellState.Entropy.Num() - 1);
+	const auto& CellEntropy = CellState.Entropy.Num();
+	float WeightSum = 0.f;
+	for (const auto& [_, Weight] : CellState.Entropy)
+		WeightSum += Weight;
+	auto RandomValue = FMath::RandRange(0.f, WeightSum);
+	auto ChosenCollapseValue = 0;
+	for (int32 i = 0; i < CellEntropy; i++)
+	{
+		if (RandomValue < CellState.Entropy[i].Weight)
+		{
+			ChosenCollapseValue = i;
+			break;
+		}
+		RandomValue -= CellState.Entropy[i].Weight;
+	}
+	
 	CellState.BlockID = CellState.Entropy[ChosenCollapseValue].BlockID;
 	CellState.Entropy.Empty();
 
