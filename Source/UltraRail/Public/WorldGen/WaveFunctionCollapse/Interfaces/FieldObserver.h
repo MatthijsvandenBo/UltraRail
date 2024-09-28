@@ -5,7 +5,7 @@
 #include "UObject/Interface.h"
 #include "FieldObserver.generated.h"
 
-class UBiomeBlockIDs;
+class AWaveCollapseGen;
 
 // This class does not need to be modified.
 UINTERFACE()
@@ -25,7 +25,7 @@ class ULTRARAIL_API IFieldObserver
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	void SetupField(UBiomeBlockIDs* Data, int32 Width, int32 Depth);
+	void SetupFieldObserver(AWaveCollapseGen* WaveCollapseGen);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetCurrentOptimalLocation(int32& X, int32& Y);

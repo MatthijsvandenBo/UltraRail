@@ -14,7 +14,7 @@ class ABlock;
 DECLARE_LOG_CATEGORY_EXTERN(LogWaveFunctionCollapse, Log, All);
 
 UCLASS(Blueprintable, BlueprintType)
-class ULTRARAIL_API AWaveCollapseGen : public AActor, public ICellStateObserver, public IFieldObserver
+class ULTRARAIL_API AWaveCollapseGen : public AActor
 {
 	GENERATED_BODY()
 
@@ -22,11 +22,11 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor, public ICellStateObserver,
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
 		meta=(AllowPrivateAccess))
-	int32 GridWidth = 30;
+	int32 FieldWidth = 60;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
 		meta=(AllowPrivateAccess))
-	int32 GridDepth = 10;
+	int32 FieldDepth = 20;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
 		meta=(AllowPrivateAccess))
@@ -51,12 +51,6 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor, public ICellStateObserver,
 	UPROPERTY(Blueprintable)
 	TMap<TSubclassOf<ABlock>, int32> ToIdLookupMap;
 
-	UPROPERTY()
-	TArray<FCellState> FieldState;
-	
-	UPROPERTY()
-	FIntVector2 LastObserved = {0, 0};
-
 public:
 	// Sets default values for this actor's properties
 	AWaveCollapseGen();
@@ -76,33 +70,11 @@ public:
 	void CollapseField();
 
 	UFUNCTION(BlueprintCallable)
-	void TranslateIndexToCart(int64 Index, int32& X, int32& Y) const;
+	const int32& GetFieldWidth() const noexcept { return FieldWidth; }
 	UFUNCTION(BlueprintCallable)
-	int64 TranslateIndexFromCart(int32 X, int32 Y) const;
+	const int32& GetFieldDepth() const noexcept { return FieldDepth; }
 
-	/// --- Field Observer Overrides
-#pragma region FIELD_OBSERVER_IMPLEMENTATIONS
-	
-	virtual void SetupField_Implementation(UBiomeBlockIDs* Data, int32 Width, int32 Depth) override;
-	virtual bool GetCurrentOptimalLocation_Implementation(int32& X, int32& Y) override;
-	virtual void GetFieldState_Implementation(TArray<FCellState>& Field) override;
-	virtual bool GetCell_Implementation(int32 X, int32 Y, FCellState& CellState) override;
-	virtual bool SetCell_Implementation(int32 X, int32 Y, FCellState NewCellState) override;
-
-	virtual bool GetTopNeighbour_Implementation(int32 X, int32 Y, FCellState& TopNeighbour) override;
-	virtual bool GetRightNeighbour_Implementation(int32 X, int32 Y, FCellState& RightNeighbour) override;
-	virtual bool GetBottomNeighbour_Implementation(int32 X, int32 Y, FCellState& BottomNeighbour) override;
-	virtual bool GetLeftNeighbour_Implementation(int32 X, int32 Y, FCellState& LeftNeighbour) override;
-
-#pragma endregion // FIELD_OBSERVER_IMPLEMENTATION
-	
-	/// --- Block State Observer Overrides
-#pragma region CELL_OBSERVER_IMPLEMENTATION
-
-	virtual void SetupCellObserver_Implementation(AWaveCollapseGen* WaveCollapseGen) override;
-	virtual void ObserveCell_Implementation(UObject* Observer, int32 X, int32 Y) override;
-	virtual void GetLastObserved_Implementation(int32& X, int32& Y) override;
-
-#pragma endregion // CELL_OBSERVER_IMPLEMENTATION
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const UBiomeBlockIDs* GetBiomeBlockIDs() const noexcept { return BiomeBlockIDs.Get(); };
 };
 
