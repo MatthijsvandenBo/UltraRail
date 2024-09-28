@@ -37,7 +37,7 @@ public:
 	bool GetCell(int32 X, int32 Y, FCellState& CellState);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	bool SetCell(int32 X, int32 Y, FCellState NewCellState);
+	bool SetCell(int32 X, int32 Y, const FCellState& NewCellState);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetTopNeighbour(int32 X, int32 Y, FCellState& TopNeighbour);

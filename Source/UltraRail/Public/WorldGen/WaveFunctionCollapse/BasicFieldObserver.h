@@ -45,7 +45,7 @@ public:
 	virtual bool GetCurrentOptimalLocation_Implementation(int32& X, int32& Y) override;
 	virtual void GetFieldState_Implementation(TArray<FCellState>& Field) override;
 	virtual bool GetCell_Implementation(int32 X, int32 Y, FCellState& CellState) override;
-	virtual bool SetCell_Implementation(int32 X, int32 Y, FCellState NewCellState) override;
+	virtual bool SetCell_Implementation(int32 X, int32 Y, const FCellState& NewCellState) override;
 
 	virtual bool GetTopNeighbour_Implementation(int32 X, int32 Y, FCellState& TopNeighbour) override;
 	virtual bool GetRightNeighbour_Implementation(int32 X, int32 Y, FCellState& RightNeighbour) override;

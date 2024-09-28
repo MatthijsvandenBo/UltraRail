@@ -99,7 +99,7 @@ bool ABasicFieldObserver::GetCell_Implementation(
 	return true;
 }
 
-bool ABasicFieldObserver::SetCell_Implementation(const int32 X, const int32 Y, const FCellState NewCellState)
+bool ABasicFieldObserver::SetCell_Implementation(const int32 X, const int32 Y, const FCellState& NewCellState)
 {
 	if (X < 0 || X >= FieldWidth || Y < 0 || Y >= FieldDepth)
 		return false;
