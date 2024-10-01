@@ -38,8 +38,8 @@ void ABasicFieldObserver::SetupFieldObserver_Implementation(AWaveCollapseGen* Wa
 {
 	const auto BiomeBlocks = WaveCollapseGen->GetBiomeBlockIDs();
 	BiomeBlockCount = BiomeBlocks->BlockIdConnections.Num();
-	FieldWidth = WaveCollapseGen->GetFieldWidth();
-	FieldDepth = WaveCollapseGen->GetFieldDepth();
+	FieldWidth = WaveCollapseGen->GetGenerationFieldWidth();
+	FieldDepth = WaveCollapseGen->GetGenerationFieldDepth();
 	
 	const auto RegisteredIds = BiomeBlocks->RegisteredIds();
 	TArray<FBlockIdWeight> Weights = {};
@@ -109,6 +109,16 @@ bool ABasicFieldObserver::SetCell_Implementation(const int32 X, const int32 Y, c
 	return true;
 }
 
+int32 ABasicFieldObserver::GetFieldWidth_Implementation()
+{
+	return FieldWidth;
+}
+
+int32 ABasicFieldObserver::GetFieldDepth_Implementation()
+{
+	return FieldDepth;
+}
+
 bool ABasicFieldObserver::GetTopNeighbour_Implementation(const int32 X, const int32 Y, FCellState& TopNeighbour)
 {
 	return GetCell_Implementation(X, Y + 1, TopNeighbour);
@@ -127,6 +137,35 @@ bool ABasicFieldObserver::GetBottomNeighbour_Implementation(int32 X, int32 Y, FC
 bool ABasicFieldObserver::GetLeftNeighbour_Implementation(int32 X, int32 Y, FCellState& LeftNeighbour)
 {
 	return GetCell_Implementation(X - 1, Y , LeftNeighbour);
+}
+
+bool ABasicFieldObserver::GetColumn_Implementation(const int32 ColumnIndex, TArray<FCellState>& Column)
+{
+	if (ColumnIndex >= FieldWidth || ColumnIndex < 0)
+		return false;
+	
+	Column.Init({FCellState::Empty_State, {}}, FieldDepth);
+	for (int32 Y = 0; Y < FieldDepth; Y++)
+	{
+		const auto TranslatedIndex = TranslateIndexFromCart(ColumnIndex, Y);
+		Column[Y] = FieldState[TranslatedIndex];
+	}
+
+	return true;
+}
+
+bool ABasicFieldObserver::SetColumn_Implementation(const int32 ColumnIndex, const TArray<FCellState>& NewColumn)
+{
+	if (ColumnIndex >= FieldWidth || ColumnIndex < 0 || NewColumn.Num() < FieldDepth)
+		return false;
+
+	for (int32 Y = 0; Y < FieldDepth; Y++)
+	{
+		const auto TranslatedIndex = TranslateIndexFromCart(ColumnIndex, Y);
+		FieldState[TranslatedIndex] = NewColumn[Y];
+	}
+
+	return true;
 }
 
 #pragma endregion // FIELD_OBSERVER_IMPLEMENTATIONS

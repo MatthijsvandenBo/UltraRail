@@ -18,6 +18,8 @@ AWaveCollapseGen::AWaveCollapseGen()
 void AWaveCollapseGen::BeginPlay()
 {
 	Super::BeginPlay();
+
+	StartFieldWidth = FieldWidth;
 	
 	if (CellStateObserver == nullptr || FieldObserver == nullptr)
 	{
@@ -30,14 +32,12 @@ void AWaveCollapseGen::BeginPlay()
 		!FieldObserver->Implements<UFieldObserver>()
 	)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red,
-			TEXT("Either one of the observers is invalid"));
+		UE_LOG(LogWaveFunctionCollapse, Error, TEXT("Either one of the observers is invalid"))
 		return;
 	}
 
 	// Normalize the id connection weights
 	BiomeBlockIDs->NormalizeWeights();
-
 
 	// setup the lookup tables
 	for (const auto& [BlockClass, BlockID, _] : BiomeBlockIDs->BlockIdConnections)
@@ -46,15 +46,15 @@ void AWaveCollapseGen::BeginPlay()
 		ToIdLookupMap.Add(BlockClass, BlockID);
 	}
 
-	CollapseFieldAsync();
+	GenerateStartChunk();
+
+	// Just a test with extra chunk generation
+	FTimerHandle UnusedHandle;
+	GetWorldTimerManager().SetTimer(UnusedHandle, this, &AWaveCollapseGen::GenerateNextChunk, 10.f, false);
 }
 
 void AWaveCollapseGen::CollapseField()
 {
-	// First call the setup on the field observer and cell observer to prepare them.
-	IFieldObserver::Execute_SetupFieldObserver(FieldObserver, this);
-	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
-	
 	int32 OptX = 0;
 	int32 OptY = 0;
 
@@ -64,10 +64,10 @@ void AWaveCollapseGen::CollapseField()
 	UE_LOG(LogWaveFunctionCollapse, Log, TEXT("Field is collapsed"))
 }
 
-// Called every frame
-void AWaveCollapseGen::Tick(float DeltaTime)
+void AWaveCollapseGen::SetupInterfaces()
 {
-	Super::Tick(DeltaTime);
+	IFieldObserver::Execute_SetupFieldObserver(FieldObserver, this);
+	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 }
 
 void AWaveCollapseGen::OnCellCollapsed(
@@ -83,12 +83,12 @@ void AWaveCollapseGen::OnCellCollapsed(
 			return;
 		}
 
-		const FVector TwoDCoordinate = {Y * GridSize, X * GridSize, 0};
+		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset) * GridSize, 0};
 		
 		GetWorld()->SpawnActor(
     		SpawnedClass->Get(),
     		&TwoDCoordinate
-    	);	
+    	);
 	});
 }
 
@@ -98,4 +98,35 @@ void AWaveCollapseGen::CollapseFieldAsync()
 	{
 		CollapseField();	
 	});
+}
+
+void AWaveCollapseGen::GenerateStartChunk()
+{
+	FieldWidth = StartFieldWidth;
+	SetupInterfaces();
+	CollapseFieldAsync();
+}
+
+void AWaveCollapseGen::GenerateNextChunk()
+{
+	// Retrieve the last column of the previous generated chunk
+	TArray<FCellState> OldLastColumn;
+	IFieldObserver::Execute_GetColumn(FieldObserver, IFieldObserver::Execute_GetFieldWidth(FieldObserver) - 1, OldLastColumn);
+
+	// Setup the offsets and the correction in the field-width as
+	// the first column is used as a reference and not to be generated
+	GenerateOffset = GetGenerationFieldWidth() - 1;
+	FieldWidth = GetExtraChunkGenerationFieldWidth();
+
+	// Setup the interfaces
+	SetupInterfaces();
+
+	// Revert the changes in the width
+	FieldWidth = GetExtraChunkGenerationFieldWidth() - 1;
+
+	// Update the first column in the observer
+	IFieldObserver::Execute_SetColumn(FieldObserver, 0, OldLastColumn);
+
+	// Collapse the field async
+	CollapseFieldAsync();
 }

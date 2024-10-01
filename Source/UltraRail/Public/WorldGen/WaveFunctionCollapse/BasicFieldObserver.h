@@ -47,10 +47,16 @@ public:
 	virtual bool GetCell_Implementation(int32 X, int32 Y, FCellState& CellState) override;
 	virtual bool SetCell_Implementation(int32 X, int32 Y, const FCellState& NewCellState) override;
 
+	virtual int32 GetFieldWidth_Implementation() override;
+	virtual int32 GetFieldDepth_Implementation() override;
+
 	virtual bool GetTopNeighbour_Implementation(int32 X, int32 Y, FCellState& TopNeighbour) override;
 	virtual bool GetRightNeighbour_Implementation(int32 X, int32 Y, FCellState& RightNeighbour) override;
 	virtual bool GetBottomNeighbour_Implementation(int32 X, int32 Y, FCellState& BottomNeighbour) override;
 	virtual bool GetLeftNeighbour_Implementation(int32 X, int32 Y, FCellState& LeftNeighbour) override;
+
+	virtual bool GetColumn_Implementation(int32 ColumnIndex, TArray<FCellState>& Column) override;
+	virtual bool SetColumn_Implementation(int32 ColumnIndex, const TArray<FCellState>& NewColumn) override;
 
 #pragma endregion // FIELD_OBSERVER_IMPLEMENTATIONS
 };

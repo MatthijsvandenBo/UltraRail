@@ -40,6 +40,11 @@ public:
 	bool SetCell(int32 X, int32 Y, const FCellState& NewCellState);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
+	int32 GetFieldWidth();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
+	int32 GetFieldDepth();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetTopNeighbour(int32 X, int32 Y, FCellState& TopNeighbour);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetRightNeighbour(int32 X, int32 Y, FCellState& RightNeighbour);
@@ -47,4 +52,9 @@ public:
 	bool GetBottomNeighbour(int32 X, int32 Y, FCellState& BottomNeighbour);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetLeftNeighbour(int32 X, int32 Y, FCellState& LeftNeighbour);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
+	bool GetColumn(int32 ColumnIndex, TArray<FCellState>& Column);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
+	bool SetColumn(int32 ColumnIndex, const TArray<FCellState>& NewColumn);
 };

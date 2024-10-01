@@ -32,6 +32,10 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 		meta=(AllowPrivateAccess))
 	float GridSize = 100.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
+		meta=(AllowPrivateAccess))
+	int32 GenerateOffset = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blocks",
 		meta=(AllowPrivateAccess))
 	TObjectPtr<UBiomeBlockIDs> BiomeBlockIDs = nullptr;
@@ -50,6 +54,8 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 	TMap<int32, TSubclassOf<ABlock>> ToBlockLookupMap;
 	UPROPERTY(Blueprintable)
 	TMap<TSubclassOf<ABlock>, int32> ToIdLookupMap;
+	UPROPERTY()
+	int32 StartFieldWidth = 0;
 
 public:
 	// Sets default values for this actor's properties
@@ -62,9 +68,12 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void CollapseField();
 
+	UFUNCTION(BlueprintCallable)
+	void SetupInterfaces();
+	
 public:
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaTime) override {};
 
 	UFUNCTION(BlueprintCallable)
 	void OnCellCollapsed(const FCellState& CellState, int32 X, int32 Y);
@@ -73,9 +82,17 @@ public:
 	void CollapseFieldAsync();
 
 	UFUNCTION(BlueprintCallable)
-	const int32& GetFieldWidth() const noexcept { return FieldWidth; }
+	void GenerateStartChunk();
+	
 	UFUNCTION(BlueprintCallable)
-	const int32& GetFieldDepth() const noexcept { return FieldDepth; }
+	void GenerateNextChunk();
+
+	UFUNCTION(BlueprintCallable)
+	const int32& GetGenerationFieldWidth() const noexcept { return FieldWidth; }
+	UFUNCTION(BlueprintCallable)
+	const int32& GetGenerationFieldDepth() const noexcept { return FieldDepth; }
+	UFUNCTION(BlueprintCallable)
+	int32 GetExtraChunkGenerationFieldWidth() const noexcept { return StartFieldWidth + 1; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const UBiomeBlockIDs* GetBiomeBlockIDs() const noexcept { return BiomeBlockIDs.Get(); };
