@@ -38,20 +38,30 @@ void AWaveCollapseGen::BeginPlay()
 	// Normalize the id connection weights
 	BiomeBlockIDs->NormalizeWeights();
 
+
 	// setup the lookup tables
 	for (const auto& [BlockClass, BlockID, _] : BiomeBlockIDs->BlockIdConnections)
 	{
 		ToBlockLookupMap.Add(BlockID, BlockClass);
 		ToIdLookupMap.Add(BlockClass, BlockID);
 	}
+
+	CollapseFieldAsync();
+}
+
+void AWaveCollapseGen::CollapseField()
+{
+	// First call the setup on the field observer and cell observer to prepare them.
+	IFieldObserver::Execute_SetupFieldObserver(FieldObserver, this);
+	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 	
-	// setup of the block states array
-	AsyncTask(ENamedThreads::Type::AnyBackgroundThreadNormalTask, [this]
-	{
-		IFieldObserver::Execute_SetupFieldObserver(FieldObserver, this);
-		ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
-		CollapseField();
-	});
+	int32 OptX = 0;
+	int32 OptY = 0;
+
+	while (IFieldObserver::Execute_GetCurrentOptimalLocation(FieldObserver, OptX, OptY))
+		ICellStateObserver::Execute_ObserveCell(CellStateObserver, FieldObserver, OptX, OptY);
+
+	UE_LOG(LogWaveFunctionCollapse, Log, TEXT("Field is collapsed"))
 }
 
 // Called every frame
@@ -82,13 +92,10 @@ void AWaveCollapseGen::OnCellCollapsed(
 	});
 }
 
-void AWaveCollapseGen::CollapseField()
+void AWaveCollapseGen::CollapseFieldAsync()
 {
-	int32 OptX = 0;
-	int32 OptY = 0;
-
-	while (IFieldObserver::Execute_GetCurrentOptimalLocation(FieldObserver, OptX, OptY))
-		ICellStateObserver::Execute_ObserveCell(CellStateObserver, FieldObserver, OptX, OptY);
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Collapsed field"));
+	AsyncTask(ENamedThreads::Type::BackgroundThreadPriority, [this]
+	{
+		CollapseField();	
+	});
 }

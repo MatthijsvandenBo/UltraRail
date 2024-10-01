@@ -46,6 +46,9 @@ void ABasicCellObserver::ObserveCell_Implementation(UObject* Observer, const int
 
 	// Update the state
 	const auto& CellEntropy = CellState.Entropy.Num();
+	
+	// Uses the Rand() function,
+	// so init seed with 'FMath::RandInit(seed)'
 	auto RandomValue = FMath::RandRange(0.f, 1.f);
 	auto ChosenCollapseValue = 0;
 	for (int32 i = 0; i < CellEntropy; i++)

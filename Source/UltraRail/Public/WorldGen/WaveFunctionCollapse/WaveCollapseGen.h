@@ -59,6 +59,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+	void CollapseField();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -67,7 +70,7 @@ public:
 	void OnCellCollapsed(const FCellState& CellState, int32 X, int32 Y);
 
 	UFUNCTION(BlueprintCallable)
-	void CollapseField();
+	void CollapseFieldAsync();
 
 	UFUNCTION(BlueprintCallable)
 	const int32& GetFieldWidth() const noexcept { return FieldWidth; }
