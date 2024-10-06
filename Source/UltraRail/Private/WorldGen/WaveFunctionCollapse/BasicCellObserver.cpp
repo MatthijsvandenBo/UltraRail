@@ -5,6 +5,12 @@
 
 DEFINE_LOG_CATEGORY(LogBasicCellObserver);
 
+#define UPDATE_SURROUNDING_CELL(Observer, NeighbourDir, X, Y, XOffset, YOffset, State, Ruleset) \
+	if(IFieldObserver::Execute_Get##NeighbourDir##Neighbour(Observer, X, Y, State) && State.BlockID == FCellState::Empty_State) { \
+		UpdateCell(State, Ruleset->CollapseSettings.Allowed##NeighbourDir##IDs); \
+		IFieldObserver::Execute_SetCell(Observer, X + XOffset, Y + YOffset, State); \
+	}
+
 #pragma region LOCAL_FUNCTION_DEFINITIONS
 
 static bool UpdateCell(FCellState& TargetCell, const TArray<FBlockIdWeight>& AllowedConnectionFilter);
@@ -81,42 +87,18 @@ void ABasicCellObserver::ObserveCell_Implementation(UObject* Observer, const int
 	}
 
 	FCellState NeighbourState;
-	
-	// Top Cell
-	if (IFieldObserver::Execute_GetTopNeighbour(Observer, X, Y, NeighbourState) &&
-		NeighbourState.BlockID == FCellState::Empty_State)
-	{
-		// update the Top neighbour
-		UpdateCell(NeighbourState, RuleSet->CollapseSettings.AllowedTopIDs);
-		IFieldObserver::Execute_SetCell(Observer, X, Y + 1, NeighbourState);
-	}
 
-	// Right Cell
-	if (IFieldObserver::Execute_GetRightNeighbour(Observer, X, Y, NeighbourState) &&
-		NeighbourState.BlockID == FCellState::Empty_State)
-	{
-		// update the Right neighbour
-		UpdateCell(NeighbourState, RuleSet->CollapseSettings.AllowedRightIDs);
-		IFieldObserver::Execute_SetCell(Observer, X + 1, Y, NeighbourState);
-	}
+	// Updates the top neighbour
+	UPDATE_SURROUNDING_CELL(Observer,    Top, X, Y, 0, 1,  NeighbourState, RuleSet)
 
-	// Bottom Cell
-	if (IFieldObserver::Execute_GetBottomNeighbour(Observer, X, Y, NeighbourState) &&
-		NeighbourState.BlockID == FCellState::Empty_State)
-	{
-		// update the Bottom neighbour
-		UpdateCell(NeighbourState, RuleSet->CollapseSettings.AllowedBottomIDs);
-		IFieldObserver::Execute_SetCell(Observer, X, Y - 1, NeighbourState);
-	}
+	// Updates the right neighbour
+	UPDATE_SURROUNDING_CELL(Observer,  Right, X, Y, 1, 0,  NeighbourState, RuleSet)
 
-	// Left Cell
-	if (IFieldObserver::Execute_GetLeftNeighbour(Observer, X, Y, NeighbourState) &&
-		NeighbourState.BlockID == FCellState::Empty_State)
-	{
-		// update the Left neighbour
-		UpdateCell(NeighbourState, RuleSet->CollapseSettings.AllowedLeftIDs);
-		IFieldObserver::Execute_SetCell(Observer, X - 1, Y, NeighbourState);
-	}
+	// Updates the bottom neighbour
+	UPDATE_SURROUNDING_CELL(Observer, Bottom, X, Y, 0, -1, NeighbourState, RuleSet)
+
+	// Updates the left neighbour
+	UPDATE_SURROUNDING_CELL(Observer,   Left, X, Y, -1, 0, NeighbourState, RuleSet)
 	
 	LastObserved[0] = X;
 	LastObserved[1] = Y;
