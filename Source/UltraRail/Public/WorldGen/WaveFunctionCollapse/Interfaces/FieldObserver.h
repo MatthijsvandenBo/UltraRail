@@ -25,6 +25,11 @@ class ULTRARAIL_API IFieldObserver
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
+	void TranslateIndexToCart(const int64 Index, int32& X, int32& Y);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
+	int64 TranslateIndexFromCart(const int32 X, const int32 Y);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	void SetupFieldObserver(AWaveCollapseGen* WaveCollapseGen);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")

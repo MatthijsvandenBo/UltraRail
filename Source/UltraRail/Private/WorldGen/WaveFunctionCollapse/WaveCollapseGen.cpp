@@ -70,33 +70,18 @@ void AWaveCollapseGen::SetupInterfaces()
 	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 }
 
-void AWaveCollapseGen::OnCellCollapsed(
-	const FCellState& CellState, const int32 X, const int32 Y)
-{
-	AsyncTask(ENamedThreads::Type::GameThread, [this, CellState, X, Y]
-	{
-		const auto SpawnedClass = ToBlockLookupMap.Find(CellState.BlockID);
-		if (SpawnedClass == nullptr)
-		{
-			// Log out that the id was invalid (should not be possible)
-			UE_LOG(LogWaveFunctionCollapse, Error, TEXT("Lookup for block id `%d` failed"), CellState.BlockID);
-			return;
-		}
-
-		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset) * GridSize, 0};
-		
-		GetWorld()->SpawnActor(
-    		SpawnedClass->Get(),
-    		&TwoDCoordinate
-    	);
-	});
-}
-
 void AWaveCollapseGen::CollapseFieldAsync()
 {
 	AsyncTask(ENamedThreads::Type::BackgroundThreadPriority, [this]
 	{
-		CollapseField();	
+		CollapseField();
+
+		AsyncTask(ENamedThreads::Type::GameThread, [this]
+		{
+			TArray<FCellState> FieldState;
+			IFieldObserver::Execute_GetFieldState(FieldObserver, FieldState);
+			ResolveField(FieldState);
+		});
 	});
 }
 
@@ -129,4 +114,34 @@ void AWaveCollapseGen::GenerateNextChunk()
 
 	// Collapse the field async
 	CollapseFieldAsync();
+}
+
+void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState) const noexcept
+{
+	const auto FieldSize = FieldState.Num();
+	const auto World = GetWorld();
+	for (int64 i = 0; i < FieldSize; ++i)
+	{
+		// split the cell-state entry into its id and weights (where weights are unused)
+		const auto& [BlockID, _] = FieldState[i];
+
+		int32 X = 0;
+		int32 Y = 0;
+		IFieldObserver::Execute_TranslateIndexToCart(FieldObserver, i, X, Y);
+		
+		const auto SpawnedClass = ToBlockLookupMap.Find(BlockID);
+		if (SpawnedClass == nullptr)
+		{
+			// Log out that the id was invalid (should not be possible)
+			UE_LOG(LogWaveFunctionCollapse, Error, TEXT("Lookup for block id `%d` failed"), BlockID);
+			return;
+		}
+
+		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset) * GridSize, 0};
+        		
+		World->SpawnActor(
+			SpawnedClass->Get(),
+			&TwoDCoordinate
+		);
+	}
 }

@@ -29,17 +29,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-private:
-	UFUNCTION(BlueprintCallable)
-	void  TranslateIndexToCart(const int64 Index, int32& X, int32& Y) const noexcept;
-	UFUNCTION(BlueprintCallable)
-	int64 TranslateIndexFromCart(const int32 X, const int32 Y) const noexcept;
-
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 #pragma region FIELD_OBSERVER_IMPLEMENTATIONS
+
+	virtual void  TranslateIndexToCart_Implementation(const int64 Index, int32& X, int32& Y) override;
+	virtual int64 TranslateIndexFromCart_Implementation(const int32 X, const int32 Y) override;
 
 	virtual void SetupFieldObserver_Implementation(AWaveCollapseGen* WaveCollapseGen) override;
 	virtual bool GetCurrentOptimalLocation_Implementation(int32& X, int32& Y) override;

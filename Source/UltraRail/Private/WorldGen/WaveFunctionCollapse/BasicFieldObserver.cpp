@@ -15,17 +15,6 @@ void ABasicFieldObserver::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ABasicFieldObserver::TranslateIndexToCart(const int64 Index, int32& X, int32& Y) const noexcept
-{
-	X = Index % FieldWidth;
-	Y = Index / FieldWidth;
-}
-
-int64 ABasicFieldObserver::TranslateIndexFromCart(const int32 X, const int32 Y) const noexcept
-{
-	return Y * FieldWidth + X;
-}
-
 // Called every frame
 void ABasicFieldObserver::Tick(const float DeltaTime)
 {
@@ -33,6 +22,17 @@ void ABasicFieldObserver::Tick(const float DeltaTime)
 }
 
 #pragma region FIELD_OBSERVER_IMPLEMENTATIONS
+
+void ABasicFieldObserver::TranslateIndexToCart_Implementation(const int64 Index, int32& X, int32& Y)
+{
+	X = Index % FieldWidth;
+	Y = Index / FieldWidth;
+}
+
+int64 ABasicFieldObserver::TranslateIndexFromCart_Implementation(const int32 X, const int32 Y)
+{
+	return Y * FieldWidth + X;
+}
 
 void ABasicFieldObserver::SetupFieldObserver_Implementation(AWaveCollapseGen* WaveCollapseGen)
 {
@@ -80,7 +80,7 @@ bool ABasicFieldObserver::GetCurrentOptimalLocation_Implementation(int32& X, int
 		return false;
 	}
 
-	TranslateIndexToCart(BestIndex, X, Y);
+	TranslateIndexToCart_Implementation(BestIndex, X, Y);
 	return true;
 }
 
@@ -95,7 +95,7 @@ bool ABasicFieldObserver::GetCell_Implementation(
 	if (X < 0 || X >= FieldWidth || Y < 0 || Y >= FieldDepth)
 		return false;
 	
-	CellState = FieldState[TranslateIndexFromCart(X, Y)];
+	CellState = FieldState[TranslateIndexFromCart_Implementation(X, Y)];
 	return true;
 }
 
@@ -104,7 +104,7 @@ bool ABasicFieldObserver::SetCell_Implementation(const int32 X, const int32 Y, c
 	if (X < 0 || X >= FieldWidth || Y < 0 || Y >= FieldDepth)
 		return false;
 	
-	const auto Index = TranslateIndexFromCart(X, Y);
+	const auto Index = TranslateIndexFromCart_Implementation(X, Y);
 	FieldState[Index] = NewCellState;
 	return true;
 }
@@ -147,7 +147,7 @@ bool ABasicFieldObserver::GetColumn_Implementation(const int32 ColumnIndex, TArr
 	Column.Init({FCellState::Empty_State, {}}, FieldDepth);
 	for (int32 Y = 0; Y < FieldDepth; Y++)
 	{
-		const auto TranslatedIndex = TranslateIndexFromCart(ColumnIndex, Y);
+		const auto TranslatedIndex = TranslateIndexFromCart_Implementation(ColumnIndex, Y);
 		Column[Y] = FieldState[TranslatedIndex];
 	}
 
@@ -161,7 +161,7 @@ bool ABasicFieldObserver::SetColumn_Implementation(const int32 ColumnIndex, cons
 
 	for (int32 Y = 0; Y < FieldDepth; Y++)
 	{
-		const auto TranslatedIndex = TranslateIndexFromCart(ColumnIndex, Y);
+		const auto TranslatedIndex = TranslateIndexFromCart_Implementation(ColumnIndex, Y);
 		FieldState[TranslatedIndex] = NewColumn[Y];
 	}
 

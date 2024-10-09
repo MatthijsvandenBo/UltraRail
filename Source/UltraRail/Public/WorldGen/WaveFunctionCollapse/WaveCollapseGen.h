@@ -2,10 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
-#include "Interfaces/CellStateObserver.h"
-#include "Interfaces/FieldObserver.h"
-
+#include "Structs/CellState.h"
 #include "WaveCollapseGen.generated.h"
 
 class UBiomeBlockIDs;
@@ -76,9 +73,6 @@ public:
 	virtual void Tick(float DeltaTime) override {};
 
 	UFUNCTION(BlueprintCallable)
-	void OnCellCollapsed(const FCellState& CellState, int32 X, int32 Y);
-
-	UFUNCTION(BlueprintCallable)
 	void CollapseFieldAsync();
 
 	UFUNCTION(BlueprintCallable)
@@ -96,5 +90,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const UBiomeBlockIDs* GetBiomeBlockIDs() const noexcept { return BiomeBlockIDs.Get(); };
+
+private:
+	UFUNCTION()
+	void ResolveField(const TArray<FCellState>& FieldState) const noexcept;
 };
 

@@ -1,5 +1,6 @@
 ﻿#include "WorldGen/WaveFunctionCollapse/BasicCellObserver.h"
 #include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
+#include "WorldGen/WaveFunctionCollapse/Interfaces/FieldObserver.h"
 #include "WorldGen/WaveFunctionCollapse/Structs/CellState.h"
 #include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
 
@@ -102,9 +103,6 @@ void ABasicCellObserver::ObserveCell_Implementation(UObject* Observer, const int
 	
 	LastObserved[0] = X;
 	LastObserved[1] = Y;
-
-	// Notify the wave function collapser that a cell has been collapsed
-	WaveCollapse->OnCellCollapsed(CellState, X, Y);
 }
 
 void ABasicCellObserver::GetLastObserved_Implementation(int32& X, int32& Y)
