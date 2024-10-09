@@ -20,6 +20,7 @@ void UBiomeBlockIDs::NormalizeWeights()
 TArray<int32> UBiomeBlockIDs::RegisteredIds() const
 {
 	TArray<int32> Array = {};
+	Array.Reserve(BlockIdConnections.Num());
 	for (const auto& [_, ID, __] : BlockIdConnections)
 		Array.Add(ID);
 

@@ -42,9 +42,12 @@ void ABasicFieldObserver::SetupFieldObserver_Implementation(AWaveCollapseGen* Wa
 	FieldDepth = WaveCollapseGen->GetGenerationFieldDepth();
 	
 	const auto RegisteredIds = BiomeBlocks->RegisteredIds();
+	const auto RegisteredIdCount = RegisteredIds.Num();
+	
 	TArray<FBlockIdWeight> Weights = {};
+	Weights.Reserve(RegisteredIdCount);
 	for (const auto& RegisteredID : RegisteredIds)
-		Weights.Add({RegisteredID, 1.f / RegisteredIds.Num()});
+		Weights.Add({RegisteredID, 1.f / RegisteredIdCount});
 	
 	FieldState.Init({FCellState::Empty_State, Weights}, FieldWidth * FieldDepth);
 }
@@ -144,11 +147,11 @@ bool ABasicFieldObserver::GetColumn_Implementation(const int32 ColumnIndex, TArr
 	if (ColumnIndex >= FieldWidth || ColumnIndex < 0)
 		return false;
 	
-	Column.Init({FCellState::Empty_State, {}}, FieldDepth);
+	Column.Reserve(FieldDepth);
 	for (int32 Y = 0; Y < FieldDepth; Y++)
 	{
 		const auto TranslatedIndex = TranslateIndexFromCart_Implementation(ColumnIndex, Y);
-		Column[Y] = FieldState[TranslatedIndex];
+		Column.Add(FieldState[TranslatedIndex]);
 	}
 
 	return true;

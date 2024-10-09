@@ -128,9 +128,9 @@ static bool UpdateCell(
 
 	// Transform the AllowedConnectionFilter array from [ID, WEIGHT] -> ID
 	TArray<int32> AllowedConnectionIDs = {};
-	AllowedConnectionIDs.Init(0, AllowedConnectionFilter.Num());
-	for (int64 i = 0; i < AllowedConnectionFilter.Num(); i++)
-		AllowedConnectionIDs[i] = AllowedConnectionFilter[i].BlockID;
+	AllowedConnectionIDs.Reserve(AllowedConnectionFilter.Num());
+	for (const auto& [ID, _] : AllowedConnectionFilter)
+		AllowedConnectionIDs.Add(ID);
 
 	// Filter out the not-allowed connected id's
 	auto NewEntropy = TargetEntropy.FilterByPredicate([&AllowedConnectionIDs](const FBlockIdWeight& EntropyEntry)
