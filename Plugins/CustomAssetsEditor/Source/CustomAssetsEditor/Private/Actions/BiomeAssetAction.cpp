@@ -1,4 +1,6 @@
 #include "Actions/BiomeAssetAction.h"
+
+#include "Apps/BiomeAssetEditorApp.h"
 #include "Assets/BiomeAsset.h"
 
 FBiomeAssetAction::FBiomeAssetAction(const EAssetTypeCategories::Type Category)
@@ -22,9 +24,18 @@ UClass* FBiomeAssetAction::GetSupportedClass() const
 }
 
 void FBiomeAssetAction::OpenAssetEditor(const TArray<UObject*>& InObjects,
-	TSharedPtr<IToolkitHost> EditWithinLevelEditor)
+	const TSharedPtr<IToolkitHost> EditWithinLevelEditor)
 {
-	// TODO! Open de editor
+	const EToolkitMode::Type Mode = EditWithinLevelEditor.IsValid() ? EToolkitMode::WorldCentric : EToolkitMode::Standalone;
+	for (const auto Object : InObjects)
+	{
+		UBiomeAsset* BiomeAsset = Cast<UBiomeAsset>(Object);
+		if (BiomeAsset == nullptr)
+			continue;
+
+		const TSharedRef<FBiomeAssetEditorApp> EditorApp(new FBiomeAssetEditorApp());
+		EditorApp->InitEditor(Mode, EditWithinLevelEditor, BiomeAsset);
+	}
 }
 
 uint32 FBiomeAssetAction::GetCategories()
