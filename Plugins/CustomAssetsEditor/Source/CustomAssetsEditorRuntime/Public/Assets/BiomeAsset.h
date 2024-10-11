@@ -9,5 +9,5 @@
 UCLASS(BlueprintType)
 class CUSTOMASSETSEDITORRUNTIME_API UBiomeAsset : public UObject
 {
- GENERATED_BODY()
+	GENERATED_BODY()
 };
