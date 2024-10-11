@@ -8,6 +8,34 @@ public class UltraRail : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput" });
+		// Built-in dependencies
+        PublicDependencyModuleNames.AddRange(new []
+        {
+	        "Core",
+	        "CoreUObject",
+	        "Engine",
+	        "InputCore",
+	        "NavigationSystem",
+	        "AIModule",
+	        "Niagara",
+	        "EnhancedInput"
+        });
+        
+        
+        // custom dependencies
+        
+        PublicDependencyModuleNames.AddRange(new []
+		{
+			"CustomAssetsEditorRuntime"
+		});
+
+        // custom editor-only dependencies
+		if (Target.bBuildEditor)
+		{
+			PublicDependencyModuleNames.AddRange(new []
+			{
+				"CustomAssetsEditor"
+			});
+		}
     }
 }
