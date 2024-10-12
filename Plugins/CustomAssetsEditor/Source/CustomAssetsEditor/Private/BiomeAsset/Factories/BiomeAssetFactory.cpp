@@ -1,17 +1,17 @@
 #include "BiomeAsset/Factories/BiomeAssetFactory.h"
 
-#include "Assets/BiomeAsset.h"
+#include "BiomeAsset/Constants.h"
 
 UBiomeAssetFactory::UBiomeAssetFactory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	SupportedClass = UBiomeAsset::StaticClass();
+	SupportedClass = Constants::UAssetSupportType::StaticClass();
 }
 
 UObject* UBiomeAssetFactory::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags,
                                               UObject* Context, FFeedbackContext* Warn)
 {
-	return NewObject<UBiomeAsset>(InParent, Name, Flags);
+	return NewObject<Constants::UAssetSupportType>(InParent, Name, Flags);
 }
 
 bool UBiomeAssetFactory::CanCreateNew() const
