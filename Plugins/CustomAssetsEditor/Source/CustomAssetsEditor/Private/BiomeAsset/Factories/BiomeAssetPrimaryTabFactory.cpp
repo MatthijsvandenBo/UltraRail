@@ -1,10 +1,12 @@
-#include "Factories/BiomeAssetPrimaryTabFactory.h"
-#include "Apps/BiomeAssetEditorApp.h"
+#include "BiomeAsset/Factories/BiomeAssetPrimaryTabFactory.h"
 
-FBiomeAssetPrimaryTabFactory::FBiomeAssetPrimaryTabFactory(TSharedPtr<FBiomeAssetEditorApp> App)
-	: FWorkflowTabFactory(FName("BiomeAssetPrimaryTab"), App)
+#include "BiomeAsset/Constants.h"
+#include "BiomeAsset/Apps/BiomeAssetEditorApp.h"
+
+FBiomeAssetPrimaryTabFactory::FBiomeAssetPrimaryTabFactory(TSharedPtr<FBiomeAssetEditorApp> InApp)
+	: FWorkflowTabFactory(Constants::PrimaryTabIdentifier, InApp)
 {
-	this->App = App;
+	App = InApp;
 	TabLabel = FText::FromString(TEXT("Primary"));
 	ViewMenuDescription = FText::FromString(TEXT("Displays the primary view."));
 	ViewMenuTooltip = FText::FromString(TEXT("Show the primary view."));

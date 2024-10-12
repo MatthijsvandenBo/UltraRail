@@ -1,7 +1,8 @@
-#include "Actions/BiomeAssetAction.h"
+#include "BiomeAsset/Actions/BiomeAssetAction.h"
 
-#include "Apps/BiomeAssetEditorApp.h"
+#include "BiomeAsset/Apps/BiomeAssetEditorApp.h"
 #include "Assets/BiomeAsset.h"
+#include "BiomeAsset/Constants.h"
 
 FBiomeAssetAction::FBiomeAssetAction(const EAssetTypeCategories::Type Category)
 {
@@ -10,17 +11,17 @@ FBiomeAssetAction::FBiomeAssetAction(const EAssetTypeCategories::Type Category)
 
 FText FBiomeAssetAction::GetName() const
 {
-	return FText::FromString(TEXT("Biome Asset"));
+	return Constants::AssetDisplayName; 
 }
 
 FColor FBiomeAssetAction::GetTypeColor() const
 {
-	return FColor(34, 139, 34);
+	return Constants::AssetDisplayColor;
 }
 
 UClass* FBiomeAssetAction::GetSupportedClass() const
 {
-	return UBiomeAsset::StaticClass();
+	return Constants::UAssetSupportType::StaticClass();
 }
 
 void FBiomeAssetAction::OpenAssetEditor(const TArray<UObject*>& InObjects,
@@ -29,7 +30,7 @@ void FBiomeAssetAction::OpenAssetEditor(const TArray<UObject*>& InObjects,
 	const EToolkitMode::Type Mode = EditWithinLevelEditor.IsValid() ? EToolkitMode::WorldCentric : EToolkitMode::Standalone;
 	for (const auto Object : InObjects)
 	{
-		UBiomeAsset* BiomeAsset = Cast<UBiomeAsset>(Object);
+		Constants::UAssetSupportType* BiomeAsset = Cast<Constants::UAssetSupportType>(Object);
 		if (BiomeAsset == nullptr)
 			continue;
 

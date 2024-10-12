@@ -1,19 +1,21 @@
-#include "Modes/BiomeAssetAppMode.h"
-#include "Apps/BiomeAssetEditorApp.h"
-#include "Factories/BiomeAssetPrimaryTabFactory.h"
+#include "BiomeAsset/Modes/BiomeAssetAppMode.h"
 
-FBiomeAssetAppMode::FBiomeAssetAppMode(TSharedPtr<FBiomeAssetEditorApp> App)
-	: FApplicationMode(TEXT("BiomeAssetAppMode"))
+#include "BiomeAsset/Constants.h"
+#include "BiomeAsset/Apps/BiomeAssetEditorApp.h"
+#include "BiomeAsset/Factories/BiomeAssetPrimaryTabFactory.h"
+
+FBiomeAssetAppMode::FBiomeAssetAppMode(TSharedPtr<FBiomeAssetEditorApp> InApp)
+	: FApplicationMode(Constants::MainModeName)
 {
-	this->App = App;
-	Tabs.RegisterFactory(MakeShareable(new FBiomeAssetPrimaryTabFactory(App)));
+	App = InApp;
+	Tabs.RegisterFactory(MakeShareable(new FBiomeAssetPrimaryTabFactory(InApp)));
 
 	TabLayout = FTabManager::NewLayout("BiomeAssetAppMode_Layout_v1")
 	->AddArea(
 		FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
 		->Split(
 			FTabManager::NewStack()
-			->AddTab(FName(TEXT("BiomeAssetPrimaryTab")), ETabState::OpenedTab)
+			->AddTab(Constants::PrimaryTabIdentifier, ETabState::OpenedTab)
 		)
 	);
 }

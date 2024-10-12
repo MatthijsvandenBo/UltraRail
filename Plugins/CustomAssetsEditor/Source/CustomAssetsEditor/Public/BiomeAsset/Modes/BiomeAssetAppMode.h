@@ -16,7 +16,7 @@ private:
 	FWorkflowAllowedTabSet Tabs;
 	
 public:
-	FBiomeAssetAppMode(TSharedPtr<FBiomeAssetEditorApp> App);
+	FBiomeAssetAppMode(TSharedPtr<FBiomeAssetEditorApp> InApp);
 
 	virtual void RegisterTabFactories(TSharedPtr<FTabManager> InTabManager) override;
 	virtual void PreDeactivateMode() override;

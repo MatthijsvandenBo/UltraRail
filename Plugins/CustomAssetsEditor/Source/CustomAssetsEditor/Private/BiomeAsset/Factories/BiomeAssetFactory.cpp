@@ -1,4 +1,4 @@
-#include "Factories/BiomeAssetFactory.h"
+#include "BiomeAsset/Factories/BiomeAssetFactory.h"
 
 #include "Assets/BiomeAsset.h"
 

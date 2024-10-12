@@ -11,10 +11,10 @@ public:
 
 	/// FAssetEditorToolkit interface
 
-	virtual FName GetToolkitFName() const override { return FName(TEXT("BiomeAssetEditor")); }
-	virtual FText GetBaseToolkitName() const override { return FText::FromString(TEXT("CustomAssetEditor")); }
-	virtual FString GetWorldCentricTabPrefix() const override { return TEXT("BiomeAssetEditor"); }
-	virtual FLinearColor GetWorldCentricTabColorScale() const override { return FColor(34, 139, 34); }
+	virtual FName GetToolkitFName() const override;
+	virtual FText GetBaseToolkitName() const override;
+	virtual FString GetWorldCentricTabPrefix() const override;
+	virtual FLinearColor GetWorldCentricTabColorScale() const override;
 	virtual FString GetDocumentationLink() const override { return TEXT(""); }
 
 	virtual void OnToolkitHostingStarted(const TSharedRef<IToolkit>& Toolkit) override {}

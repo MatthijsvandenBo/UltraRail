@@ -1,9 +1,10 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CustomAssetsEditor.h"
-#include "Actions/BiomeAssetAction.h"
+#include "BiomeAsset/Actions/BiomeAssetAction.h"
 #include "IAssetTools.h"
 #include "AssetToolsModule.h"
+#include "BiomeAsset/Constants.h"
 
 #define LOCTEXT_NAMESPACE "FCustomAssetsEditorModule"
 
@@ -12,7 +13,7 @@ void FCustomAssetsEditorModule::StartupModule()
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	IAssetTools& AssetToolsModule = IAssetTools::Get();
 	const EAssetTypeCategories::Type CustomAssetType = AssetToolsModule.RegisterAdvancedAssetCategory(
-		FName(TEXT("CustomAssets")),
+		Constants::CategoryKey,
 		FText::FromString("Custom Assets"));
 
 	const TSharedPtr<FBiomeAssetAction> CustomAssetAction = MakeShareable(new FBiomeAssetAction(CustomAssetType));
