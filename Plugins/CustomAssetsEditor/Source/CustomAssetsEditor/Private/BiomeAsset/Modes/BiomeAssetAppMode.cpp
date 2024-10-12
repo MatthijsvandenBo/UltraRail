@@ -10,12 +10,12 @@ FBiomeAssetAppMode::FBiomeAssetAppMode(TSharedPtr<FBiomeAssetEditorApp> InApp)
 	App = InApp;
 	Tabs.RegisterFactory(MakeShareable(new FBiomeAssetPrimaryTabFactory(InApp)));
 
-	TabLayout = FTabManager::NewLayout("BiomeAssetAppMode_Layout_v1")
+	TabLayout = FTabManager::NewLayout("BiomeAssetAppMode_Layout_v1.0.1")
 	->AddArea(
 		FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
 		->Split(
 			FTabManager::NewStack()
-			->AddTab(Constants::PrimaryTabIdentifier, ETabState::OpenedTab)
+			->AddTab(Constants::DetailsTabIdentifier, ETabState::OpenedTab)
 		)
 	);
 }

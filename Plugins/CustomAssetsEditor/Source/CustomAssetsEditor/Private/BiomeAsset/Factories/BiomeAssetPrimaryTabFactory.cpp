@@ -4,12 +4,12 @@
 #include "BiomeAsset/Apps/BiomeAssetEditorApp.h"
 
 FBiomeAssetPrimaryTabFactory::FBiomeAssetPrimaryTabFactory(TSharedPtr<FBiomeAssetEditorApp> InApp)
-	: FWorkflowTabFactory(Constants::PrimaryTabIdentifier, InApp)
+	: FWorkflowTabFactory(Constants::DetailsTabIdentifier, InApp)
 {
 	App = InApp;
-	TabLabel = FText::FromString(TEXT("Primary"));
-	ViewMenuDescription = FText::FromString(TEXT("Displays the primary view."));
-	ViewMenuTooltip = FText::FromString(TEXT("Show the primary view."));
+	TabLabel = FText::FromName(Constants::DetailsTabName);
+	ViewMenuDescription = FText::FromString(TEXT("Displays the details view."));
+	ViewMenuTooltip = FText::FromString(TEXT("Show the details view."));
 }
 
 TSharedRef<SWidget> FBiomeAssetPrimaryTabFactory::CreateTabBody(const FWorkflowTabSpawnInfo& Info) const
@@ -19,5 +19,5 @@ TSharedRef<SWidget> FBiomeAssetPrimaryTabFactory::CreateTabBody(const FWorkflowT
 
 FText FBiomeAssetPrimaryTabFactory::GetTabToolTipText(const FWorkflowTabSpawnInfo& Info) const
 {
-	return FText::FromString(TEXT("The primary view"));
+	return FText::FromString(TEXT("The details view"));
 }

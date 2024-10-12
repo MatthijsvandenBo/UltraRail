@@ -14,7 +14,8 @@ namespace Constants
 	const static FName ApplicationIdentifier(TEXT("BiomeAssetEditor"));
 
 	/// Tab Identifiers
-	
-	const static FName PrimaryTabIdentifier(TEXT("BiomeAssetAppPrimaryTab"));
+
+	const static FName DetailsTabName = TEXT("Details");
+	const static FName DetailsTabIdentifier(TEXT("BiomeAssetApp/DetailsTab"));
 	
 } // Constants
