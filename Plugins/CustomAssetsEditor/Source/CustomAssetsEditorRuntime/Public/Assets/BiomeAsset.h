@@ -12,6 +12,6 @@ class CUSTOMASSETSEDITORRUNTIME_API UBiomeAsset : public UObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 ID;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<TSubclassOf<AActor>, int32> RegisteredIds;
 };
