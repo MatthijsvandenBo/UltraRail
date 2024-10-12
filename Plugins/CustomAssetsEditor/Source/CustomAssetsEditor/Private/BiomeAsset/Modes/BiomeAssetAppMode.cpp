@@ -2,13 +2,13 @@
 
 #include "BiomeAsset/Constants.h"
 #include "BiomeAsset/Apps/BiomeAssetEditorApp.h"
-#include "BiomeAsset/Factories/BiomeAssetPrimaryTabFactory.h"
+#include "BiomeAsset/Factories/BiomeAssetDetailsTabFactory.h"
 
 FBiomeAssetAppMode::FBiomeAssetAppMode(TSharedPtr<FBiomeAssetEditorApp> InApp)
 	: FApplicationMode(Constants::MainModeName)
 {
 	App = InApp;
-	Tabs.RegisterFactory(MakeShareable(new FBiomeAssetPrimaryTabFactory(InApp)));
+	Tabs.RegisterFactory(MakeShareable(new FBiomeAssetDetailsTabFactory(InApp)));
 
 	TabLayout = FTabManager::NewLayout("BiomeAssetAppMode_Layout_v1.0.1")
 	->AddArea(

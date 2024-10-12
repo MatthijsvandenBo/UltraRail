@@ -10,4 +10,8 @@ UCLASS(BlueprintType)
 class CUSTOMASSETSEDITORRUNTIME_API UBiomeAsset : public UObject
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 ID;
 };

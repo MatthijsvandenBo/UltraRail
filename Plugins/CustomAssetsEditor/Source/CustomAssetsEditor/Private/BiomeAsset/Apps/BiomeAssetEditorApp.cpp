@@ -13,6 +13,7 @@ void FBiomeAssetEditorApp::InitEditor(const EToolkitMode::Type Mode, const TShar
 {
 	TArray<UObject*> ObjectsToEdit;
 	ObjectsToEdit.Add(InObject);
+	WorkingAsset = Cast<Constants::UAssetSupportType>(InObject);
 
 	InitAssetEditor(Mode,
 		InitToolkitHost,

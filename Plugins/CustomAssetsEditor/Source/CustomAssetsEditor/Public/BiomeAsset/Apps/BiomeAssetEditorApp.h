@@ -1,13 +1,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BiomeAsset/Constants.h"
 #include "WorkflowOrientedApp/WorkflowCentricApplication.h"
 
 class FBiomeAssetEditorApp : public FWorkflowCentricApplication, public FEditorUndoClient, public FNotifyHook
 {
+	
+private:
+	Constants::UAssetSupportType* WorkingAsset = nullptr;
+	
 public:
 	virtual void RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
 	void InitEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, UObject* InObject);
+
+	Constants::UAssetSupportType* GetWorkingAsset() const { return WorkingAsset; }
 
 	/// FAssetEditorToolkit interface
 
