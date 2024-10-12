@@ -1,3 +1,7 @@
+/**
+* https://forums.unrealengine.com/t/tutorial-slate-slistview-example/46308
+*/
+
 #pragma once
 
 #include "CoreMinimal.h"
