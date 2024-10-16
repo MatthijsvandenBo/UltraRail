@@ -13,6 +13,9 @@ namespace Constants
 	const static FName MainModeName(TEXT("MainBiomeAssetAppMode"));
 	const static FName ApplicationIdentifier(TEXT("BiomeAssetEditor"));
 
+	// Styles
+	const static FName StyleSetName = TEXT("BiomeAssetEditorStyle");
+
 	/// Tab Identifiers
 
 	const static FName DetailsTabName = TEXT("Details");

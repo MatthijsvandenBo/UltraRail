@@ -43,6 +43,7 @@ public class CustomAssetsEditor : ModuleRules
 				"AssetTools",
 				"UnrealEd",
 				"PropertyEditor",
+				"Projects"
 			}
 			);
 		
