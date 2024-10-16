@@ -1,7 +1,3 @@
-/**
-* https://forums.unrealengine.com/t/tutorial-slate-slistview-example/46308
-*/
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -12,13 +8,13 @@ class FBiomeAssetEditorApp;
 /**
  * 
  */
-class FBiomeAssetDetailsTabFactory : public FWorkflowTabFactory
+class FBiomeAssetGraphTabFactory : public FWorkflowTabFactory
 {
 private:
 	TWeakPtr<FBiomeAssetEditorApp> App;
 	
 public:
-	FBiomeAssetDetailsTabFactory(TSharedPtr<FBiomeAssetEditorApp> InApp);
+	FBiomeAssetGraphTabFactory(TSharedPtr<FBiomeAssetEditorApp> InApp);
 
 	virtual TSharedRef<SWidget> CreateTabBody(const FWorkflowTabSpawnInfo& Info) const override;
 	virtual FText GetTabToolTipText(const FWorkflowTabSpawnInfo& Info) const override;

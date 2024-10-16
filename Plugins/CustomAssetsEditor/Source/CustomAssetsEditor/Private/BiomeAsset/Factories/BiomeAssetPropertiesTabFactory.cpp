@@ -1,22 +1,21 @@
-#include "BiomeAsset/Factories/BiomeAssetDetailsTabFactory.h"
+#include "BiomeAsset/Factories/BiomeAssetPropertiesTabFactory.h"
 
 #include "BiomeAsset/Constants.h"
 #include "BiomeAsset/Apps/BiomeAssetEditorApp.h"
 #include "IDetailsView.h"
 #include "PropertyEditorModule.h"
 
-FBiomeAssetDetailsTabFactory::FBiomeAssetDetailsTabFactory(TSharedPtr<FBiomeAssetEditorApp> InApp)
-	: FWorkflowTabFactory(Constants::DetailsTabIdentifier, InApp)
+FBiomeAssetPropertiesTabFactory::FBiomeAssetPropertiesTabFactory(TSharedPtr<FBiomeAssetEditorApp> InApp)
+	: FWorkflowTabFactory(Constants::PropertiesTabIdentifier, InApp)
 {
 	App = InApp;
-	TabLabel = FText::FromName(Constants::DetailsTabName);
-	ViewMenuDescription = FText::FromString(TEXT("Displays the details view."));
-	ViewMenuTooltip = FText::FromString(TEXT("Show the details view."));
+	TabLabel = FText::FromName(Constants::PropertiesTabName);
+	ViewMenuDescription = FText::FromString(TEXT("Displays the properties view."));
+	ViewMenuTooltip = FText::FromString(TEXT("Show the properties view."));
 }
 
-TSharedRef<SWidget> FBiomeAssetDetailsTabFactory::CreateTabBody(const FWorkflowTabSpawnInfo& Info) const
+TSharedRef<SWidget> FBiomeAssetPropertiesTabFactory::CreateTabBody(const FWorkflowTabSpawnInfo& Info) const
 {
-	// return SNew(STextBlock).Text(FText::FromString(TEXT("This is a text widget created for the custom tab!")));
 	const TSharedPtr<FBiomeAssetEditorApp> Pin = App.Pin();
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	
@@ -42,7 +41,7 @@ TSharedRef<SWidget> FBiomeAssetDetailsTabFactory::CreateTabBody(const FWorkflowT
 		];
 }
 
-FText FBiomeAssetDetailsTabFactory::GetTabToolTipText(const FWorkflowTabSpawnInfo& Info) const
+FText FBiomeAssetPropertiesTabFactory::GetTabToolTipText(const FWorkflowTabSpawnInfo& Info) const
 {
-	return FText::FromString(TEXT("The details view"));
+	return FText::FromString(TEXT("The properties view"));
 }
