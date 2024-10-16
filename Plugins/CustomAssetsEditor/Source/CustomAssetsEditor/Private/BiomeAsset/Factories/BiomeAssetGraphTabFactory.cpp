@@ -2,6 +2,10 @@
 
 #include "BiomeAsset/Constants.h"
 #include "BiomeAsset/Apps/BiomeAssetEditorApp.h"
+#include "GraphEditor.h"
+#include "EditionUpgradeHelper.h"
+#include "Editor/UnrealEd/Public/Kismet2/BlueprintEditorUtils.h"
+#include "Kismet2/KismetEditorUtilities.h"
 
 FBiomeAssetGraphTabFactory::FBiomeAssetGraphTabFactory(TSharedPtr<FBiomeAssetEditorApp> InApp)
 	: FWorkflowTabFactory(Constants::GraphTabIdentifier, InApp)
@@ -14,13 +18,16 @@ FBiomeAssetGraphTabFactory::FBiomeAssetGraphTabFactory(TSharedPtr<FBiomeAssetEdi
 
 TSharedRef<SWidget> FBiomeAssetGraphTabFactory::CreateTabBody(const FWorkflowTabSpawnInfo& Info) const
 {
+	const auto Pin = App.Pin();
+	
 	return SNew(SVerticalBox)
 	+ SVerticalBox::Slot()
 		.FillHeight(1.f)
 		.HAlign(HAlign_Fill)
 		[
-			SNew(STextBlock)
-				.Text(FText::FromString(TEXT("The Graphing Editor")))
+			SNew(SGraphEditor)
+				.IsEditable(true)
+				.GraphToEdit(Pin->GetWorkingGraph())
 		];
 }
 

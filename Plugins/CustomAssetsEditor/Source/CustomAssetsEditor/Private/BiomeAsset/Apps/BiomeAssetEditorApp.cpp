@@ -2,6 +2,8 @@
 
 #include "BiomeAsset/Constants.h"
 #include "BiomeAsset/Modes/BiomeAssetAppMode.h"
+#include "BiomeAsset/Schemas/BiomeAssetGraphSchema.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 
 void FBiomeAssetEditorApp::RegisterTabSpawners(const TSharedRef<FTabManager>& TabManagerRef)
 {
@@ -13,7 +15,17 @@ void FBiomeAssetEditorApp::InitEditor(const EToolkitMode::Type Mode, const TShar
 {
 	TArray<UObject*> ObjectsToEdit;
 	ObjectsToEdit.Add(InObject);
+
+	// Initialize the working asset
 	WorkingAsset = Cast<Constants::UAssetSupportType>(InObject);
+
+	// Initialize the working graph
+	WorkingGraph = FBlueprintEditorUtils::CreateNewGraph(
+		WorkingAsset,
+		NAME_None,
+		UEdGraph::StaticClass(),
+		UBiomeAssetGraphSchema::StaticClass()
+	);
 
 	InitAssetEditor(Mode,
 		InitToolkitHost,

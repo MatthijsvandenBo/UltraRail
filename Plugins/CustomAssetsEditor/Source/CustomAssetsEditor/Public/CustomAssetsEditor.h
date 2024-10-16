@@ -8,10 +8,13 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCustomAsset, All, Log);
 
+struct FCustomPinFactory;
+
 class FCustomAssetsEditorModule : public IModuleInterface
 {
 private:
 	TSharedPtr<FSlateStyleSet> StyleSet = nullptr;
+	TSharedPtr<FCustomPinFactory> PinFactory = nullptr;
 	
 public:
 

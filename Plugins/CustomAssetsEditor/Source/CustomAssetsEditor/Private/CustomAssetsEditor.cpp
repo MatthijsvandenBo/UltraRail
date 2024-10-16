@@ -2,6 +2,7 @@
 
 #include "CustomAssetsEditor.h"
 #include "BiomeAsset/Actions/BiomeAssetAction.h"
+#include "BiomeAsset/Pins/CustomGraphPin.h"
 #include "IAssetTools.h"
 #include "AssetToolsModule.h"
 #include "BiomeAsset/Constants.h"
@@ -52,6 +53,9 @@ void FCustomAssetsEditorModule::StartupModule()
 	
 	// Only when we really need a style-set
 	// FSlateStyleRegistry::RegisterSlateStyle(*StyleSet);
+
+	PinFactory = MakeShareable(new FCustomPinFactory());
+	FEdGraphUtilities::RegisterVisualPinFactory(PinFactory);
 }
 
 void FCustomAssetsEditorModule::ShutdownModule()
@@ -60,6 +64,7 @@ void FCustomAssetsEditorModule::ShutdownModule()
 	// we call this function before unloading the module.
 
 	FSlateStyleRegistry::UnRegisterSlateStyle(*StyleSet);
+	FEdGraphUtilities::UnregisterVisualPinFactory(PinFactory);
 }
 
 #undef LOCTEXT_NAMESPACE
