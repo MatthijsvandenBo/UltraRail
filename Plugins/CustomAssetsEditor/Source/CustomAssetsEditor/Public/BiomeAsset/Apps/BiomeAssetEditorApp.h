@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "BiomeAsset/Constants.h"
+#include "BiomeAsset/Factories/CustomNodeFactory.h"
 #include "WorkflowOrientedApp/WorkflowCentricApplication.h"
 
 class UEdGraph;

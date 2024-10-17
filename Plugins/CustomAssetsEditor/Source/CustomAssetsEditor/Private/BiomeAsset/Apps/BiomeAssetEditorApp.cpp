@@ -58,8 +58,9 @@ void FBiomeAssetEditorApp::UpdateWorkingAssetFromGraph()
 		// Todo! Save depending on node-type
 		// (function mapped to a node-name)
 		
-		URuntimeNode* RuntimeNode = NewObject<URuntimeNode>(RuntimeGraph);
+		URuntimeNode* RuntimeNode = FCustomNodeFactory::CreateRuntimeNode(UiNode->GetName(), RuntimeGraph);
 		RuntimeNode->Position = FVector2D(UiNode->NodePosX, UiNode->NodePosY);
+		RuntimeNode->NodeClassName = FName(UiNode->GetName());
 
 		for (UEdGraphPin* UiPin : UiNode->Pins)
 		{
@@ -108,11 +109,12 @@ void FBiomeAssetEditorApp::UpdateEditorGraphFromWorkingAsset()
 
 	for (auto* RuntimeNode : WorkingAsset->Graph->Nodes)
 	{
-
+		
 		// Todo! Read depending on Node-name
 		// (function map with retrieving data)
 		
-		UCustomGraphNode* NewNode = NewObject<UCustomGraphNode>(WorkingGraph);
+		// UCustomGraphNode* NewNode = NewObject<UCustomGraphNode>(WorkingGraph);
+		UCustomGraphNode* NewNode = FCustomNodeFactory::CreateEditorNode(RuntimeNode->NodeClassName, WorkingGraph);
 		NewNode->NodeGuid = WorkingAsset->Graph->GuidMap[RuntimeNode];
 
 		NewNode->NodePosX = RuntimeNode->Position.Y;
@@ -120,6 +122,9 @@ void FBiomeAssetEditorApp::UpdateEditorGraphFromWorkingAsset()
 
 		if (RuntimeNode->InputPin != nullptr)
 		{
+			URuntimePin* Pin = RuntimeNode->InputPin;
+			UEdGraphPin* UiPin = NewNode->CreateCustomPin(EGPD_Input, Pin->PinName, Constants::CustomPinSubCategory);
+			UiPin->PinId = Pin->PinId;
 		}
 	}
 }

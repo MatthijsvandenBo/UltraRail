@@ -15,6 +15,9 @@ class CUSTOMASSETSEDITORRUNTIME_API URuntimeNode : public UObject
 
 public:
 	UPROPERTY()
+	FName NodeClassName;
+	
+	UPROPERTY()
 	URuntimePin* InputPin;
 
 	UPROPERTY()
