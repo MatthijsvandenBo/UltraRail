@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EdGraphUtilities.h"
+#include "BiomeAsset/Constants.h"
 #include "KismetPins/SGraphPinColor.h"
 #include "EdGraph/EdGraphPin.h"
 #include "CoreMinimal.h"
@@ -22,19 +22,6 @@ public:
 protected:
 	virtual FSlateColor GetPinColor() const override
 	{
-		return FSlateColor(FLinearColor(.2f, 1.f, .2f));
+		return Constants::CustomPinColor;
 	}
-};
-
-struct FCustomPinFactory : public FGraphPanelPinFactory
-{
-public:
-	virtual ~FCustomPinFactory() override {}
-	virtual TSharedPtr<SGraphPin> CreatePin(UEdGraphPin* Pin) const override
-	{
-		if (FName(TEXT("CustomPin")) != Pin->PinType.PinSubCategory)
-			return nullptr;
-
-		return SNew(SCustomGraphPin, Pin);
-	};
 };

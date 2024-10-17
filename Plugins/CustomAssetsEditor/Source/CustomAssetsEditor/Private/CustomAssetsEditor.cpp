@@ -2,7 +2,7 @@
 
 #include "CustomAssetsEditor.h"
 #include "BiomeAsset/Actions/BiomeAssetAction.h"
-#include "BiomeAsset/Pins/CustomGraphPin.h"
+#include "BiomeAsset/Factories/CustomPinFactory.h"
 #include "IAssetTools.h"
 #include "AssetToolsModule.h"
 #include "BiomeAsset/Constants.h"

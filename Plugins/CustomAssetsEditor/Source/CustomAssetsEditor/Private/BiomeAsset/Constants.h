@@ -31,5 +31,11 @@ namespace Constants
 
 	const static FName GraphTabName = TEXT("Graph");
 	const static FName GraphTabIdentifier = TEXT("BiomeAssetApp/GraphTab");
+
+
+	// Pin Sub-categories
+	
+	const static FName CustomPinSubCategory = TEXT("CustomPin");
+	const static FSlateColor CustomPinColor = FLinearColor(.2f, 1.f, .2f);
 	
 } // Constants
