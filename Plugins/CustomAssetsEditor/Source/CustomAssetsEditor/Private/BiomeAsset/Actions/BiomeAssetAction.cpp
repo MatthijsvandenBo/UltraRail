@@ -1,7 +1,6 @@
 #include "BiomeAsset/Actions/BiomeAssetAction.h"
 
 #include "BiomeAsset/Apps/BiomeAssetEditorApp.h"
-#include "Assets/BiomeAsset.h"
 #include "BiomeAsset/Constants.h"
 
 FBiomeAssetAction::FBiomeAssetAction(const EAssetTypeCategories::Type Category)

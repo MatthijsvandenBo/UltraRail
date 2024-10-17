@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Assets/BiomeAsset.h"
+#include "BiomeASset/Assets/BiomeAsset.h"
 
 namespace Constants
 {

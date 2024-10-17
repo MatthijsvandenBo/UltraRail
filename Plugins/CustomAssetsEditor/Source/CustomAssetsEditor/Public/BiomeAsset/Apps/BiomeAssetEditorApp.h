@@ -20,6 +20,10 @@ public:
 	FORCEINLINE Constants::UAssetSupportType* GetWorkingAsset() const { return WorkingAsset; }
 	FORCEINLINE UEdGraph* GetWorkingGraph() const { return WorkingGraph; }
 
+protected:
+	void UpdateWorkingAssetFromGraph();
+	void UpdateEditorGraphFromWorkingAsset();
+
 	/// FAssetEditorToolkit interface
 
 	virtual FName GetToolkitFName() const override;

@@ -17,7 +17,7 @@ void UBiomeAssetGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Co
 	const TSharedPtr<UCellConnectionNode::FNewNodeAction> NewCellConnectionGraphNodeAction = MakeShareable(
 		new UCellConnectionNode::FNewNodeAction(
 			FText::FromString(TEXT("Ruling")),
-			FText::FromString(TEXT("CellConnectionRule")),
+			FText::FromString(TEXT("CellConnectionRules")),
 			FText::FromString(TEXT("Creates a new node defining the connection rule")),
 			0
 		)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BiomeAsset/Graphs/BiomeAssetRuntimeGraph.h"
 #include "BiomeAsset.generated.h"
 
 /**
@@ -14,4 +15,7 @@ class CUSTOMASSETSEDITORRUNTIME_API UBiomeAsset : public UObject
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<TSubclassOf<AActor>, int32> RegisteredIds;
+
+	UPROPERTY()
+	UBiomeAssetRuntimeGraph* Graph = nullptr;
 };
