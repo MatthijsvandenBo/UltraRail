@@ -2,6 +2,7 @@
 
 #include "BiomeAsset/Constants.h"
 #include "BiomeAsset/Modes/BiomeAssetAppMode.h"
+#include "BiomeAsset/Nodes/CustomGraphNode.h"
 #include "BiomeAsset/Pins/RuntimePin.h"
 #include "BiomeAsset/Schemas/BiomeAssetGraphSchema.h"
 #include "Kismet2/BlueprintEditorUtils.h"
@@ -54,6 +55,9 @@ void FBiomeAssetEditorApp::UpdateWorkingAssetFromGraph()
 
 	for (UEdGraphNode* UiNode : WorkingGraph->Nodes)
 	{
+		// Todo! Save depending on node-type
+		// (function mapped to a node-name)
+		
 		URuntimeNode* RuntimeNode = NewObject<URuntimeNode>(RuntimeGraph);
 		RuntimeNode->Position = FVector2D(UiNode->NodePosX, UiNode->NodePosY);
 
@@ -82,6 +86,7 @@ void FBiomeAssetEditorApp::UpdateWorkingAssetFromGraph()
 		}
 
 		RuntimeGraph->Nodes.Add(RuntimeNode);
+		RuntimeGraph->GuidMap.Add(RuntimeNode, UiNode->NodeGuid);
 	}
 
 	for (const auto& [Pin1Guid, Pin2Guid] : Connections)
@@ -95,6 +100,28 @@ void FBiomeAssetEditorApp::UpdateWorkingAssetFromGraph()
 
 void FBiomeAssetEditorApp::UpdateEditorGraphFromWorkingAsset()
 {
+	if (WorkingAsset->Graph == nullptr)
+		return;
+
+	TArray<std::pair<FGuid, FGuid>> Connections;
+	TMap<FGuid, UEdGraphPin*> IdToPinMap;
+
+	for (auto* RuntimeNode : WorkingAsset->Graph->Nodes)
+	{
+
+		// Todo! Read depending on Node-name
+		// (function map with retrieving data)
+		
+		UCustomGraphNode* NewNode = NewObject<UCustomGraphNode>(WorkingGraph);
+		NewNode->NodeGuid = WorkingAsset->Graph->GuidMap[RuntimeNode];
+
+		NewNode->NodePosX = RuntimeNode->Position.Y;
+		NewNode->NodePosY = RuntimeNode->Position.X;
+
+		if (RuntimeNode->InputPin != nullptr)
+		{
+		}
+	}
 }
 
 FName FBiomeAssetEditorApp::GetToolkitFName() const

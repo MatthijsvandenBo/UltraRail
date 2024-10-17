@@ -16,4 +16,7 @@ class CUSTOMASSETSEDITORRUNTIME_API UBiomeAssetRuntimeGraph : public UObject
 public:
 	UPROPERTY()
 	TArray<URuntimeNode*> Nodes;
+
+	UPROPERTY()
+	TMap<URuntimeNode*, FGuid> GuidMap;
 };
