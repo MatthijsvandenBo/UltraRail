@@ -4,13 +4,13 @@
 #include "RuntimeNode.h"
 #include "UObject/Object.h"
 #include "BiomeAsset/Structs/CellDefinitionData.h"
-#include "CellDefinitionNode.generated.h"
+#include "RuntimeCellDefinitionNode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CUSTOMASSETSEDITORRUNTIME_API UCellDefinitionNode : public URuntimeNode
+class CUSTOMASSETSEDITORRUNTIME_API URuntimeCellDefinitionNode : public URuntimeNode
 {
 	GENERATED_BODY()
 	

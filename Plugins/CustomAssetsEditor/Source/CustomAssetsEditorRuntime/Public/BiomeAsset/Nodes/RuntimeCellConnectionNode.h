@@ -3,13 +3,13 @@
 #include "CoreMinimal.h"
 #include "RuntimeNode.h"
 #include "BiomeAsset/Structs/CellConnectionData.h"
-#include "CellConnectionRulesNode.generated.h"
+#include "RuntimeCellConnectionNode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CUSTOMASSETSEDITORRUNTIME_API UCellConnectionRulesNode : public URuntimeNode 
+class CUSTOMASSETSEDITORRUNTIME_API URuntimeCellConnectionNode : public URuntimeNode 
 {
 	GENERATED_BODY()
 

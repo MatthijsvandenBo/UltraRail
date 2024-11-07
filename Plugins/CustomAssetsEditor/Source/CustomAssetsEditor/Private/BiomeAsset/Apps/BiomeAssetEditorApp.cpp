@@ -2,6 +2,7 @@
 
 #include "BiomeAsset/Constants.h"
 #include "BiomeAsset/Modes/BiomeAssetAppMode.h"
+#include "BiomeAsset/Nodes/RuntimeCellDefinitionNode.h"
 #include "BiomeAsset/Nodes/CustomGraphNode.h"
 #include "BiomeAsset/Pins/RuntimePin.h"
 #include "BiomeAsset/Schemas/BiomeAssetGraphSchema.h"
@@ -40,6 +41,43 @@ void FBiomeAssetEditorApp::InitEditor(const EToolkitMode::Type Mode, const TShar
 
 	AddApplicationMode(Constants::MainModeName, MakeShareable(new FBiomeAssetAppMode(SharedThis(this))));
 	SetCurrentMode(Constants::MainModeName);
+
+	UpdateEditorGraphFromWorkingAsset();
+	GraphChangeListenerHandle = WorkingGraph->AddOnGraphChangedHandler(
+		FOnGraphChanged::FDelegate::CreateSP(this, &FBiomeAssetEditorApp::OnGraphChanced)
+	);
+}
+
+FName FBiomeAssetEditorApp::GetToolkitFName() const
+{
+	return Constants::CategoryKey;
+}
+
+FText FBiomeAssetEditorApp::GetBaseToolkitName() const
+{
+	return FText::FromName(Constants::CategoryKey);
+}
+
+FString FBiomeAssetEditorApp::GetWorldCentricTabPrefix() const
+{
+	return Constants::CategoryKey.ToString();
+}
+
+FLinearColor FBiomeAssetEditorApp::GetWorldCentricTabColorScale() const
+{
+	return Constants::AssetDisplayColor;
+}
+
+void FBiomeAssetEditorApp::OnClose()
+{
+	UpdateWorkingAssetFromGraph();
+	WorkingGraph->RemoveOnGraphChangedHandler(GraphChangeListenerHandle);
+	FWorkflowCentricApplication::OnClose();
+}
+
+void FBiomeAssetEditorApp::OnGraphChanced(const FEdGraphEditAction& EditAction)
+{
+	UpdateWorkingAssetFromGraph();
 }
 
 void FBiomeAssetEditorApp::UpdateWorkingAssetFromGraph()
@@ -57,10 +95,15 @@ void FBiomeAssetEditorApp::UpdateWorkingAssetFromGraph()
 	{
 		// Todo! Save depending on node-type
 		// (function mapped to a node-name)
+
+		// URuntimeNode* RuntimeNode = NewObject<URuntimeCellDefinitionNode>();
+		const auto NodeClassName = UiNode->GetClass()->GetName();
+		URuntimeNode* RuntimeNode = FCustomNodeFactory::CreateRuntimeNode(NodeClassName, RuntimeGraph);
+		if (RuntimeNode == nullptr)
+			continue;
 		
-		URuntimeNode* RuntimeNode = FCustomNodeFactory::CreateRuntimeNode(UiNode->GetName(), RuntimeGraph);
 		RuntimeNode->Position = FVector2D(UiNode->NodePosX, UiNode->NodePosY);
-		RuntimeNode->NodeClassName = FName(UiNode->GetName());
+		RuntimeNode->NodeClassName = FName(NodeClassName);
 
 		for (UEdGraphPin* UiPin : UiNode->Pins)
 		{
@@ -113,38 +156,52 @@ void FBiomeAssetEditorApp::UpdateEditorGraphFromWorkingAsset()
 		// Todo! Read depending on Node-name
 		// (function map with retrieving data)
 		
-		// UCustomGraphNode* NewNode = NewObject<UCustomGraphNode>(WorkingGraph);
-		UCustomGraphNode* NewNode = FCustomNodeFactory::CreateEditorNode(RuntimeNode->NodeClassName, WorkingGraph);
-		NewNode->NodeGuid = WorkingAsset->Graph->GuidMap[RuntimeNode];
+		// UCustomGraphNode* UiNode = NewObject<UCustomGraphNode>(WorkingGraph);
+		UCustomGraphNode* UiNode = FCustomNodeFactory::CreateEditorNode(RuntimeNode->NodeClassName, WorkingGraph);
+		if (UiNode == nullptr)
+			continue;
+		
+		UiNode->NodeGuid = WorkingAsset->Graph->GuidMap[RuntimeNode];
 
-		NewNode->NodePosX = RuntimeNode->Position.Y;
-		NewNode->NodePosY = RuntimeNode->Position.X;
+		UiNode->NodePosX = RuntimeNode->Position.X;
+		UiNode->NodePosY = RuntimeNode->Position.Y;
 
 		if (RuntimeNode->InputPin != nullptr)
 		{
 			URuntimePin* Pin = RuntimeNode->InputPin;
-			UEdGraphPin* UiPin = NewNode->CreateCustomPin(EGPD_Input, Pin->PinName, Constants::CustomPinSubCategory);
+			UEdGraphPin* UiPin = UiNode->CreateCustomPin(EGPD_Input, Pin->PinName, Constants::CustomPinSubCategory);
 			UiPin->PinId = Pin->PinId;
+
+			if (Pin->Connection != nullptr)
+			{
+				Connections.Add(std::make_pair(Pin->PinId, Pin->Connection->PinId));
+			}
+
+			IdToPinMap.Add(Pin->PinId, UiPin);
 		}
+
+		for (URuntimePin* RuntimePin : RuntimeNode->OutputPins)
+		{
+			UEdGraphPin* UiPin = UiNode->CreateCustomPin(EGPD_Output, RuntimePin->PinName, Constants::CustomPinSubCategory);
+			UiPin->PinId = RuntimePin->PinId;
+
+			if (RuntimePin->Connection != nullptr)
+			{
+				Connections.Add(std::make_pair(RuntimePin->PinId, RuntimePin->Connection->PinId));
+			}
+
+			IdToPinMap.Add(RuntimePin->PinId, UiPin);
+		}
+
+		WorkingGraph->AddNode(UiNode, true, true);
 	}
-}
 
-FName FBiomeAssetEditorApp::GetToolkitFName() const
-{
-	return Constants::CategoryKey;
-}
+	for (const auto& [FromId, ToId] : Connections)
+	{
+		UEdGraphPin* FromPin = IdToPinMap[FromId];
+		UEdGraphPin* ToPin = IdToPinMap[ToId];
 
-FText FBiomeAssetEditorApp::GetBaseToolkitName() const
-{
-	return FText::FromName(Constants::CategoryKey);
-}
-
-FString FBiomeAssetEditorApp::GetWorldCentricTabPrefix() const
-{
-	return Constants::CategoryKey.ToString();
-}
-
-FLinearColor FBiomeAssetEditorApp::GetWorldCentricTabColorScale() const
-{
-	return Constants::AssetDisplayColor;
+		FromPin->LinkedTo.Add(ToPin);
+		ToPin->LinkedTo.Add(FromPin);
+	}
 }

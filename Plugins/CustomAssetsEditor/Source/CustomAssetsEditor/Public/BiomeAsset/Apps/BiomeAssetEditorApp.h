@@ -13,6 +13,8 @@ class FBiomeAssetEditorApp : public FWorkflowCentricApplication, public FEditorU
 private:
 	Constants::UAssetSupportType* WorkingAsset = nullptr;
 	UEdGraph* WorkingGraph = nullptr;
+
+	FDelegateHandle GraphChangeListenerHandle;
 	
 public:
 	virtual void RegisterTabSpawners(const TSharedRef<FTabManager>& TabManager) override;
@@ -21,12 +23,7 @@ public:
 	FORCEINLINE Constants::UAssetSupportType* GetWorkingAsset() const { return WorkingAsset; }
 	FORCEINLINE UEdGraph* GetWorkingGraph() const { return WorkingGraph; }
 
-protected:
-	void UpdateWorkingAssetFromGraph();
-	void UpdateEditorGraphFromWorkingAsset();
-
 	/// FAssetEditorToolkit interface
-
 	virtual FName GetToolkitFName() const override;
 	virtual FText GetBaseToolkitName() const override;
 	virtual FString GetWorldCentricTabPrefix() const override;
@@ -35,4 +32,11 @@ protected:
 
 	virtual void OnToolkitHostingStarted(const TSharedRef<IToolkit>& Toolkit) override {}
 	virtual void OnToolkitHostingFinished(const TSharedRef<IToolkit>& Toolkit) override {}
+
+	virtual void OnClose() override;
+	void OnGraphChanced(const FEdGraphEditAction& EditAction);
+
+protected:
+	void UpdateWorkingAssetFromGraph();
+	void UpdateEditorGraphFromWorkingAsset();
 };
