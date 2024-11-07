@@ -2,14 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "CustomGraphNode.h"
-#include "CellGraphNode.generated.h"
+#include "CellDefinitionNode.generated.h"
 
 
 /**
  * 
  */
 UCLASS()
-class UCellGraphNode : public UCustomGraphNode 
+class UCellDefinitionNode : public UCustomGraphNode 
 {
 	GENERATED_BODY()
 	
@@ -26,7 +26,7 @@ public:
     	virtual UEdGraphNode* PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode) override;
     };
 
-	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override { return FText::FromString(TEXT("Cell")); }
+	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override { return FText::FromString(TEXT("Cell Definition")); }
 };
 
 

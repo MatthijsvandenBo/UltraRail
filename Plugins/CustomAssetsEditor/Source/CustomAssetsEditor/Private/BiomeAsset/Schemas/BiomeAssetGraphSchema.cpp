@@ -1,12 +1,12 @@
 #include "BiomeAsset/Schemas/BiomeAssetGraphSchema.h"
 
 #include "BiomeAsset/Nodes/CellConnectionNode.h"
-#include "BiomeAsset/Nodes/CellGraphNode.h"
+#include "BiomeAsset/Nodes/CellDefinitionNode.h"
 
 void UBiomeAssetGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const
 {
-	const TSharedPtr<UCellGraphNode::FNewNodeAction> NewCellGraphNodeAction = MakeShareable(
-		new UCellGraphNode::FNewNodeAction(
+	const TSharedPtr<UCellDefinitionNode::FNewNodeAction> NewCellGraphNodeAction = MakeShareable(
+		new UCellDefinitionNode::FNewNodeAction(
 			FText::FromString(TEXT("Definition")),
 			FText::FromString(TEXT("CellDefinition")),
 			FText::FromString(TEXT("Creates a new node defining a cell ruling")),

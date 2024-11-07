@@ -1,6 +1,6 @@
-#include "BiomeAsset/Nodes/CellGraphNode.h"
+#include "BiomeAsset/Nodes/CellDefinitionNode.h"
 
-void UCellGraphNode::ContextDeleteAction_Function()
+void UCellDefinitionNode::ContextDeleteAction_Function()
 {
 	if (!CanUserDeleteNode())
 		return;
@@ -8,10 +8,10 @@ void UCellGraphNode::ContextDeleteAction_Function()
 	DestroyNode();
 }
 
-UEdGraphNode* UCellGraphNode::FNewNodeAction::PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin,
+UEdGraphNode* UCellDefinitionNode::FNewNodeAction::PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin,
                                                             const FVector2D Location, const bool bSelectNewNode)
 {
-	UCellGraphNode* Result = NewObject<UCellGraphNode>(ParentGraph);
+	UCellDefinitionNode* Result = NewObject<UCellDefinitionNode>(ParentGraph);
 	Result->CreateNewGuid();
 	Result->NodePosX = Location.X;
 	Result->NodePosY = Location.Y;

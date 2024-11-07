@@ -3,7 +3,7 @@
 #include "BiomeAsset/Nodes/CellConnectionNode.h"
 #include "BiomeAsset/Nodes/RuntimeCellConnectionNode.h"
 #include "BiomeAsset/Nodes/RuntimeCellDefinitionNode.h"
-#include "BiomeAsset/Nodes/CellGraphNode.h"
+#include "BiomeAsset/Nodes/CellDefinitionNode.h"
 
 #define CLASSNAME_TEXT(CLASS_NAME) #CLASS_NAME
 
@@ -13,7 +13,7 @@ FCustomNodeFactory::FCustomNodeFactory()
 
 URuntimeNode* FCustomNodeFactory::CreateRuntimeNode(const FString& NodeName, UObject* Outer)
 {
-	if (NodeName == CLASSNAME_TEXT(CellGraphNode))
+	if (NodeName == CLASSNAME_TEXT(CellDefinitionNode))
 		return NewObject<URuntimeCellDefinitionNode>(Outer);
 
 	if (NodeName == CLASSNAME_TEXT(CellConnectionNode))
@@ -24,8 +24,8 @@ URuntimeNode* FCustomNodeFactory::CreateRuntimeNode(const FString& NodeName, UOb
 
 UCustomGraphNode* FCustomNodeFactory::CreateEditorNode(const FName& NodeName, UObject* Outer)
 {
-	if (NodeName == CLASSNAME_TEXT(CellGraphNode))
-		return NewObject<UCellGraphNode>(Outer);
+	if (NodeName == CLASSNAME_TEXT(CellDefinitionNode))
+		return NewObject<UCellDefinitionNode>(Outer);
 
 	if (NodeName == CLASSNAME_TEXT(CellConnectionNode))
 		return NewObject<UCellConnectionNode>(Outer);
