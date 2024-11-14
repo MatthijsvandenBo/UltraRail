@@ -2,6 +2,7 @@
 
 #include "BiomeAsset/Constants.h"
 #include "BiomeAsset/Modes/BiomeAssetAppMode.h"
+#include "BiomeAsset/Nodes/CellDefinitionNode.h"
 #include "BiomeAsset/Nodes/RuntimeCellDefinitionNode.h"
 #include "BiomeAsset/Nodes/CustomGraphNode.h"
 #include "BiomeAsset/Pins/RuntimePin.h"
@@ -93,17 +94,15 @@ void FBiomeAssetEditorApp::UpdateWorkingAssetFromGraph()
 
 	for (UEdGraphNode* UiNode : WorkingGraph->Nodes)
 	{
-		// Todo! Save depending on node-type
-		// (function mapped to a node-name)
-
-		// URuntimeNode* RuntimeNode = NewObject<URuntimeCellDefinitionNode>();
-		const auto NodeClassName = UiNode->GetClass()->GetName();
-		URuntimeNode* RuntimeNode = FCustomNodeFactory::CreateRuntimeNode(NodeClassName, RuntimeGraph);
+		const UCustomGraphNode* CustomUiNode = Cast<UCustomGraphNode>(UiNode);
+		if (CustomUiNode == nullptr)
+			continue;
+		
+		URuntimeNode* RuntimeNode = FCustomNodeFactory::CreateRuntimeNode(CustomUiNode, RuntimeGraph);
 		if (RuntimeNode == nullptr)
 			continue;
 		
 		RuntimeNode->Position = FVector2D(UiNode->NodePosX, UiNode->NodePosY);
-		RuntimeNode->NodeClassName = FName(NodeClassName);
 
 		for (UEdGraphPin* UiPin : UiNode->Pins)
 		{
@@ -152,12 +151,7 @@ void FBiomeAssetEditorApp::UpdateEditorGraphFromWorkingAsset()
 
 	for (auto* RuntimeNode : WorkingAsset->Graph->Nodes)
 	{
-		
-		// Todo! Read depending on Node-name
-		// (function map with retrieving data)
-		
-		// UCustomGraphNode* UiNode = NewObject<UCustomGraphNode>(WorkingGraph);
-		UCustomGraphNode* UiNode = FCustomNodeFactory::CreateEditorNode(RuntimeNode->NodeClassName, WorkingGraph);
+		UCustomGraphNode* UiNode = FCustomNodeFactory::CreateEditorNode(RuntimeNode, WorkingGraph);
 		if (UiNode == nullptr)
 			continue;
 		

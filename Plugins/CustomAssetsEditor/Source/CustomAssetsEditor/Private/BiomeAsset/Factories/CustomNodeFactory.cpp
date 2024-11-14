@@ -5,30 +5,74 @@
 #include "BiomeAsset/Nodes/RuntimeCellDefinitionNode.h"
 #include "BiomeAsset/Nodes/CellDefinitionNode.h"
 
-#define CLASSNAME_TEXT(CLASS_NAME) #CLASS_NAME
-
 FCustomNodeFactory::FCustomNodeFactory()
 {
 }
 
-URuntimeNode* FCustomNodeFactory::CreateRuntimeNode(const FString& NodeName, UObject* Outer)
+URuntimeNode* FCustomNodeFactory::CreateRuntimeNode(const UCustomGraphNode* UiNode, UObject* Outer)
 {
-	if (NodeName == CLASSNAME_TEXT(CellDefinitionNode))
-		return NewObject<URuntimeCellDefinitionNode>(Outer);
+	URuntimeNode* NewRuntimeNode = nullptr;
 
-	if (NodeName == CLASSNAME_TEXT(CellConnectionNode))
-		return NewObject<URuntimeCellConnectionNode>(Outer);
+	if (UiNode->NodeType == ENodeTypes::CellDefinition)
+	{
+		NewRuntimeNode = NewObject<URuntimeCellDefinitionNode>(Outer);
+		reinterpret_cast<URuntimeCellDefinitionNode*>(NewRuntimeNode)->NodeInfo = reinterpret_cast<const UCellDefinitionNode*>(UiNode)->GetNodeInfo();
+	}
+
+	if (UiNode->NodeType == ENodeTypes::CellConnection)
+	{
+		NewRuntimeNode = NewObject<URuntimeCellConnectionNode>(Outer);
+		reinterpret_cast<URuntimeCellConnectionNode*>(NewRuntimeNode)->NodeInfo = reinterpret_cast<const UCellConnectionNode*>(UiNode)->GetNodeInfo();
+	}
+
+	if (NewRuntimeNode != nullptr)
+		NewRuntimeNode->NodeType = UiNode->NodeType;
 	
-	return nullptr;
+	return NewRuntimeNode;
 }
 
-UCustomGraphNode* FCustomNodeFactory::CreateEditorNode(const FName& NodeName, UObject* Outer)
+UCustomGraphNode* FCustomNodeFactory::CreateEditorNode(URuntimeNode* RuntimeNode, UObject* Outer)
 {
-	if (NodeName == CLASSNAME_TEXT(CellDefinitionNode))
-		return NewObject<UCellDefinitionNode>(Outer);
+	UCustomGraphNode* NewUiNode = nullptr;
 
-	if (NodeName == CLASSNAME_TEXT(CellConnectionNode))
-		return NewObject<UCellConnectionNode>(Outer);
+	if (RuntimeNode->NodeType == ENodeTypes::CellDefinition)
+	{
+		NewUiNode = NewObject<UCellDefinitionNode>(Outer);
+		const auto* NodeInfo = reinterpret_cast<const URuntimeCellDefinitionNode*>(RuntimeNode)->NodeInfo;
+		if (NodeInfo == nullptr)
+		{
+			reinterpret_cast<UCellDefinitionNode*>(NewUiNode)->SetNodeInfo(
+				NewObject<UCellDefinitionData>(RuntimeNode)
+			);
+		}
+		else
+		{
+			reinterpret_cast<UCellDefinitionNode*>(NewUiNode)->SetNodeInfo(
+				DuplicateObject(NodeInfo, RuntimeNode)
+			);
+		}
+	}
 
-	return nullptr;
+	if (RuntimeNode->NodeType == ENodeTypes::CellConnection)
+	{
+		NewUiNode = NewObject<UCellConnectionNode>(Outer);
+		const auto* NodeInfo = reinterpret_cast<const URuntimeCellConnectionNode*>(RuntimeNode)->NodeInfo;
+		if (NodeInfo == nullptr)
+		{
+			reinterpret_cast<UCellConnectionNode*>(NewUiNode)->SetNodeInfo(
+				NewObject<UCellConnectionData>(RuntimeNode)
+			);
+		}
+		else
+		{
+			reinterpret_cast<UCellConnectionNode*>(NewUiNode)->SetNodeInfo(
+				DuplicateObject(NodeInfo, RuntimeNode)
+			);
+		}
+	}
+
+	if (NewUiNode != nullptr)
+		NewUiNode->NodeType = RuntimeNode->NodeType;
+
+	return NewUiNode;
 }

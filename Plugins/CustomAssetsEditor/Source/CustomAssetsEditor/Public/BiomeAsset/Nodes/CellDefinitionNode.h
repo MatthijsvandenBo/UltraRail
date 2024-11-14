@@ -4,6 +4,7 @@
 #include "CustomGraphNode.h"
 #include "CellDefinitionNode.generated.h"
 
+class UCellDefinitionData;
 
 /**
  * 
@@ -12,8 +13,12 @@ UCLASS()
 class UCellDefinitionNode : public UCustomGraphNode 
 {
 	GENERATED_BODY()
-	
+
 protected:
+	
+	UPROPERTY()
+	UCellDefinitionData* NodeInfo = nullptr;
+	
 	virtual void ContextDeleteAction_Function() override;
 	
 public:
@@ -27,6 +32,9 @@ public:
     };
 
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override { return FText::FromString(TEXT("Cell Definition")); }
+
+	void SetNodeInfo(UCellDefinitionData* NewNodeInfo) { NodeInfo = NewNodeInfo; }
+	UCellDefinitionData* GetNodeInfo() const { return NodeInfo; }
 };
 
 

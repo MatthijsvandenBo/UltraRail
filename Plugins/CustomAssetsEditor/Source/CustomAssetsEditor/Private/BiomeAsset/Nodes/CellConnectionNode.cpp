@@ -1,4 +1,5 @@
 #include "BiomeAsset/Nodes/CellConnectionNode.h"
+#include "BiomeAsset/NodeSaveData/CellConnectionData.h"
 
 void UCellConnectionNode::ContextDeleteAction_Function()
 {
@@ -11,18 +12,20 @@ void UCellConnectionNode::ContextDeleteAction_Function()
 UEdGraphNode* UCellConnectionNode::FNewNodeAction::PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin,
 	const FVector2D Location, const bool bSelectNewNode)
 {
-	UCellConnectionNode* NewNode = NewObject<UCellConnectionNode>(ParentGraph);
-	NewNode->CreateNewGuid();
-	NewNode->NodePosX = Location.X;
-	NewNode->NodePosY = Location.Y;
+	UCellConnectionNode* Result = NewObject<UCellConnectionNode>(ParentGraph);
+	Result->CreateNewGuid();
+	Result->NodePosX = Location.X;
+	Result->NodePosY = Location.Y;
+	Result->NodeType = ENodeTypes::CellConnection;
+	Result->SetNodeInfo(NewObject<UCellConnectionData>(Result));
 
-	const auto InputPin = NewNode->CreateCustomPin(EGPD_Input, TEXT("CellDefinition"), Constants::CustomPinSubCategory);
+	const auto InputPin = Result->CreateCustomPin(EGPD_Input, TEXT("CellDefinition"), Constants::CustomPinSubCategory);
 
 	if (FromPin != nullptr)
-		NewNode->GetSchema()->TryCreateConnection(FromPin, InputPin);
+		Result->GetSchema()->TryCreateConnection(FromPin, InputPin);
 	
 	ParentGraph->Modify();
-	ParentGraph->AddNode(NewNode, true, bSelectNewNode);
+	ParentGraph->AddNode(Result, true, bSelectNewNode);
 
-	return NewNode;
+	return Result;
 }

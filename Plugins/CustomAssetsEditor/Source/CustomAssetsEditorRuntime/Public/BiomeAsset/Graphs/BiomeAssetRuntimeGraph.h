@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BiomeAsset/Nodes/RuntimeCellDefinitionNode.h"
 #include "BiomeAsset/Nodes/RuntimeNode.h"
 #include "UObject/NameTypes.h"
 #include "BiomeASsetRuntimeGraph.generated.h"

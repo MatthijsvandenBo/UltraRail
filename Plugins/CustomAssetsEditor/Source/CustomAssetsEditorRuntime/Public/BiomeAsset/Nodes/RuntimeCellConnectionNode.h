@@ -2,17 +2,18 @@
 
 #include "CoreMinimal.h"
 #include "RuntimeNode.h"
-#include "BiomeAsset/Structs/CellConnectionData.h"
+#include "BiomeAsset/NodeSaveData/CellConnectionData.h"
 #include "RuntimeCellConnectionNode.generated.h"
 
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class CUSTOMASSETSEDITORRUNTIME_API URuntimeCellConnectionNode : public URuntimeNode 
 {
 	GENERATED_BODY()
 
+public:
 	UPROPERTY(Blueprintable)
-	FCellConnectionData ConnectionData;
+	UCellConnectionData* NodeInfo = nullptr;
 };

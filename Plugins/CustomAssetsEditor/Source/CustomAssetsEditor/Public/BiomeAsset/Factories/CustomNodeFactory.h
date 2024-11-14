@@ -14,7 +14,7 @@ class CUSTOMASSETSEDITOR_API FCustomNodeFactory
 public:	
 	FCustomNodeFactory();
 
-	static URuntimeNode* CreateRuntimeNode(const FString& NodeName, UObject* Outer);
-	static UCustomGraphNode* CreateEditorNode(const FName& NodeName, UObject* Outer);
+	static URuntimeNode* CreateRuntimeNode(const UCustomGraphNode* NodeName, UObject* Outer);
+	static UCustomGraphNode* CreateEditorNode(URuntimeNode* NodeName, UObject* Outer);
 	
 };

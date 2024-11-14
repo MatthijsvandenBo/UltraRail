@@ -15,6 +15,10 @@ class UCustomGraphNode : public UEdGraphNode
 
 	FUIAction ContextDeleteAction;
 	
+public:
+	UPROPERTY()
+	ENodeTypes NodeType;
+	
 protected:
 	 virtual void ContextDeleteAction_Function() {};
 
