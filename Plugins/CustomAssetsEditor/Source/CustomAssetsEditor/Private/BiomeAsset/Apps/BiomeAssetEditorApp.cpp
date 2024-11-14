@@ -49,6 +49,17 @@ void FBiomeAssetEditorApp::InitEditor(const EToolkitMode::Type Mode, const TShar
 	);
 }
 
+void FBiomeAssetEditorApp::SetSelectedNodeDetailView(TSharedPtr<IDetailsView> DetailsView)
+{
+	SelectedNodeDetailsView = DetailsView;
+	SelectedNodeDetailsView->OnFinishedChangingProperties().AddRaw(this, &FBiomeAssetEditorApp::OnNodeDetailsViewPropertiesUpdated);
+}
+
+void FBiomeAssetEditorApp::OnGraphSelectionChanged(const FGraphPanelSelectionSet& Selection)
+{
+	// TODO! Left at 19:30
+}
+
 FName FBiomeAssetEditorApp::GetToolkitFName() const
 {
 	return Constants::CategoryKey;
@@ -74,6 +85,12 @@ void FBiomeAssetEditorApp::OnClose()
 	UpdateWorkingAssetFromGraph();
 	WorkingGraph->RemoveOnGraphChangedHandler(GraphChangeListenerHandle);
 	FWorkflowCentricApplication::OnClose();
+}
+
+void FBiomeAssetEditorApp::OnNodeDetailsViewPropertiesUpdated(const FPropertyChangedEvent& Event)
+{
+	if (WorkingGraphNodeUi != nullptr)
+		WorkingGraphNodeUi->NotifyGraphChanged();
 }
 
 void FBiomeAssetEditorApp::OnGraphChanced(const FEdGraphEditAction& EditAction)
