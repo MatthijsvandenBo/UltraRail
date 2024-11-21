@@ -30,7 +30,7 @@ public:
     	virtual UEdGraphNode* PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode) override;
     };
 
-	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override { return FText::FromString(TEXT("Cell Definition")); }
+	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 
 	void SetNodeInfo(UCellDefinitionData* NewNodeInfo) { NodeInfo = NewNodeInfo; }
 	virtual UNodeInfoBase* GetNodeInfo() const override { return NodeInfo; }

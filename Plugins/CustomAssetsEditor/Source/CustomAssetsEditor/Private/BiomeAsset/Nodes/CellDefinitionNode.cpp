@@ -29,3 +29,14 @@ UEdGraphNode* UCellDefinitionNode::FNewNodeAction::PerformAction(UEdGraph* Paren
 	
 	return Result;
 }
+
+FText UCellDefinitionNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
+{
+	if (NodeInfo->Block == nullptr)
+		return FText::FromString(TEXT("Cell Definition"));
+
+	const auto BlockName = NodeInfo->Block->GetDisplayNameText().ToString();
+	const auto BlockID = FString::Printf(TEXT("(%d)"), NodeInfo->ID);
+
+	return FText::FromString(BlockName + " " + BlockID);
+}

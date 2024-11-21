@@ -30,20 +30,11 @@ TSharedRef<SWidget> FBiomeAssetPropertiesTabFactory::CreateTabBody(const FWorkfl
 	DetailsViewArgs.bShowModifiedPropertiesOption = true;
 	DetailsViewArgs.bShowScrollBar = false;
 
-	const TSharedPtr<IDetailsView> DetailsView = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
-	DetailsView->SetObject(Pin->GetWorkingAsset());
-
 	const TSharedPtr<IDetailsView> SelectedNodesDetailsView = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
 	SelectedNodesDetailsView->SetObject(nullptr);
 	Pin->SetSelectedNodeDetailView(SelectedNodesDetailsView);
 	
 	return SNew(SVerticalBox)
-		+ SVerticalBox::Slot()
-		.FillHeight(1.f)
-		.HAlign(HAlign_Fill)
-		[
-			DetailsView.ToSharedRef()
-		]
 		+ SVerticalBox::Slot()
 		.FillHeight(1.f)
 		.HAlign(HAlign_Fill)
