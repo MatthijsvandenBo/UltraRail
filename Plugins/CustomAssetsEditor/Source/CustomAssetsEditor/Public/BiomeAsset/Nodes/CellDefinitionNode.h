@@ -1,10 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BiomeAsset/NodeSaveData/CellDefinitionData.h"
 #include "CustomGraphNode.h"
 #include "CellDefinitionNode.generated.h"
-
-class UCellDefinitionData;
 
 /**
  * 
@@ -34,7 +33,7 @@ public:
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override { return FText::FromString(TEXT("Cell Definition")); }
 
 	void SetNodeInfo(UCellDefinitionData* NewNodeInfo) { NodeInfo = NewNodeInfo; }
-	UCellDefinitionData* GetNodeInfo() const { return NodeInfo; }
+	virtual UNodeInfoBase* GetNodeInfo() const override { return NodeInfo; }
 };
 
 

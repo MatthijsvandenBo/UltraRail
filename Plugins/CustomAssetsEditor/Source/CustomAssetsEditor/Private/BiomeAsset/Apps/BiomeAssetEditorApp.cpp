@@ -2,6 +2,7 @@
 
 #include "BiomeAsset/Constants.h"
 #include "BiomeAsset/Modes/BiomeAssetAppMode.h"
+#include "BiomeAsset/Nodes/CellConnectionNode.h"
 #include "BiomeAsset/Nodes/CellDefinitionNode.h"
 #include "BiomeAsset/Nodes/RuntimeCellDefinitionNode.h"
 #include "BiomeAsset/Nodes/CustomGraphNode.h"
@@ -58,6 +59,20 @@ void FBiomeAssetEditorApp::SetSelectedNodeDetailView(TSharedPtr<IDetailsView> De
 void FBiomeAssetEditorApp::OnGraphSelectionChanged(const FGraphPanelSelectionSet& Selection)
 {
 	// TODO! Left at 19:30
+
+	// Find the first custom cell if any
+	for (const auto Node : Selection)
+	{
+		const UCustomGraphNode* CustomGraphNode = Cast<UCustomGraphNode>(Node);
+		if (CustomGraphNode != nullptr)
+		{
+			SelectedNodeDetailsView->SetObject(CustomGraphNode->GetNodeInfo());
+			return;
+		}
+	}
+
+	// If none found, explicitly set it to a nullptr
+	SelectedNodeDetailsView->SetObject(nullptr);
 }
 
 FName FBiomeAssetEditorApp::GetToolkitFName() const

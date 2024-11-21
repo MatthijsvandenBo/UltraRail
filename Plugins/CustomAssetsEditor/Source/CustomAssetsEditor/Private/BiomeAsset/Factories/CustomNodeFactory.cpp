@@ -16,13 +16,15 @@ URuntimeNode* FCustomNodeFactory::CreateRuntimeNode(const UCustomGraphNode* UiNo
 	if (UiNode->NodeType == ENodeTypes::CellDefinition)
 	{
 		NewRuntimeNode = NewObject<URuntimeCellDefinitionNode>(Outer);
-		reinterpret_cast<URuntimeCellDefinitionNode*>(NewRuntimeNode)->NodeInfo = reinterpret_cast<const UCellDefinitionNode*>(UiNode)->GetNodeInfo();
+		reinterpret_cast<URuntimeCellDefinitionNode*>(NewRuntimeNode)->NodeInfo = reinterpret_cast<UCellDefinitionData*>(
+			reinterpret_cast<const UCellDefinitionNode*>(UiNode)->GetNodeInfo());
 	}
 
 	if (UiNode->NodeType == ENodeTypes::CellConnection)
 	{
 		NewRuntimeNode = NewObject<URuntimeCellConnectionNode>(Outer);
-		reinterpret_cast<URuntimeCellConnectionNode*>(NewRuntimeNode)->NodeInfo = reinterpret_cast<const UCellConnectionNode*>(UiNode)->GetNodeInfo();
+		reinterpret_cast<URuntimeCellConnectionNode*>(NewRuntimeNode)->NodeInfo = reinterpret_cast<UCellConnectionData*>(
+			reinterpret_cast<const UCellConnectionNode*>(UiNode)->GetNodeInfo());
 	}
 
 	if (NewRuntimeNode != nullptr)

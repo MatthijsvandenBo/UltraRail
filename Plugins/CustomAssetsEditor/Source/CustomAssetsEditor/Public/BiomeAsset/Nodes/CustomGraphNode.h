@@ -43,4 +43,5 @@ public:
 	virtual void GetNodeContextMenuActions(UToolMenu* Menu, UGraphNodeContextMenuContext* Context) const override;
 
 	virtual UEdGraphPin* CreateCustomPin(EEdGraphPinDirection Direction, FName PinName, FName PinSubCategory);
+	virtual UNodeInfoBase* GetNodeInfo() const { return nullptr; }
 };

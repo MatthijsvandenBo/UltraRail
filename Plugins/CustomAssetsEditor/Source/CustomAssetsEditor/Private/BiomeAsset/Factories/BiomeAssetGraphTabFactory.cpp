@@ -19,15 +19,26 @@ FBiomeAssetGraphTabFactory::FBiomeAssetGraphTabFactory(TSharedPtr<FBiomeAssetEdi
 TSharedRef<SWidget> FBiomeAssetGraphTabFactory::CreateTabBody(const FWorkflowTabSpawnInfo& Info) const
 {
 	const auto Pin = App.Pin();
+
+	SGraphEditor::FGraphEditorEvents GraphEditorEvents;
+
+	// Binds the OnGraphSelectionChanged function of the app to the OnSelectionChanged of the graph-editor
+	GraphEditorEvents.OnSelectionChanged.BindRaw(Pin.Get(), &FBiomeAssetEditorApp::OnGraphSelectionChanged);
+
+	const TSharedPtr<SGraphEditor> GraphEditor =
+		SNew(SGraphEditor)
+		.IsEditable(true)
+		.GraphEvents(GraphEditorEvents)
+		.GraphToEdit(Pin->GetWorkingGraph());
+
+	Pin->SetWorkingGraphNodeUi(GraphEditor);
 	
 	return SNew(SVerticalBox)
 	+ SVerticalBox::Slot()
 		.FillHeight(1.f)
 		.HAlign(HAlign_Fill)
 		[
-			SNew(SGraphEditor)
-				.IsEditable(true)
-				.GraphToEdit(Pin->GetWorkingGraph())
+			GraphEditor.ToSharedRef()
 		];
 }
 

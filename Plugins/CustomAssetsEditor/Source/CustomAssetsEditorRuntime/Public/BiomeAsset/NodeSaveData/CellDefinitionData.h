@@ -1,10 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NodeInfoBase.h"
 #include "CellDefinitionData.generated.h"
 
 UCLASS(BlueprintType)
-class CUSTOMASSETSEDITORRUNTIME_API UCellDefinitionData : public UObject
+class CUSTOMASSETSEDITORRUNTIME_API UCellDefinitionData : public UNodeInfoBase 
 {
 	GENERATED_BODY()
 

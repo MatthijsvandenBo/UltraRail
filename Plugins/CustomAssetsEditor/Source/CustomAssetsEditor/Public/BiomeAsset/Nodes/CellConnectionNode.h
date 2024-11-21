@@ -2,9 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "CustomGraphNode.h"
+#include "BiomeAsset/NodeSaveData/CellConnectionData.h"
 #include "CellConnectionNode.generated.h"
-
-class UCellConnectionData;
 
 /**
  * 
@@ -33,6 +32,6 @@ public:
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override { return FText::FromString(TEXT("Cell Connections")); }
 
 	void SetNodeInfo(UCellConnectionData* NewNodeInfo) { NodeInfo = NewNodeInfo; }
-	UCellConnectionData* GetNodeInfo() const { return NodeInfo; }
+	virtual UNodeInfoBase* GetNodeInfo() const override { return NodeInfo; }
 	
 };
