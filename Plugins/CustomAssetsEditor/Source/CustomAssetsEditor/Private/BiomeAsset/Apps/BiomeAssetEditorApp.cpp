@@ -102,6 +102,12 @@ void FBiomeAssetEditorApp::OnClose()
 	FWorkflowCentricApplication::OnClose();
 }
 
+void FBiomeAssetEditorApp::SaveAsset_Execute()
+{
+	FWorkflowCentricApplication::SaveAsset_Execute();
+	UpdateWorkingAssetFromGraph();
+}
+
 void FBiomeAssetEditorApp::OnNodeDetailsViewPropertiesUpdated(const FPropertyChangedEvent& Event)
 {
 	if (WorkingGraphNodeUi != nullptr)
@@ -110,7 +116,7 @@ void FBiomeAssetEditorApp::OnNodeDetailsViewPropertiesUpdated(const FPropertyCha
 
 void FBiomeAssetEditorApp::OnGraphChanced(const FEdGraphEditAction& EditAction)
 {
-	UpdateWorkingAssetFromGraph();
+
 }
 
 void FBiomeAssetEditorApp::UpdateWorkingAssetFromGraph()

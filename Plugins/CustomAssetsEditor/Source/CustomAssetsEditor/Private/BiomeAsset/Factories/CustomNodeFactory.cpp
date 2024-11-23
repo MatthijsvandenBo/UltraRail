@@ -23,8 +23,11 @@ URuntimeNode* FCustomNodeFactory::CreateRuntimeNode(const UCustomGraphNode* UiNo
 	if (UiNode->NodeType == ENodeTypes::CellConnection)
 	{
 		NewRuntimeNode = NewObject<URuntimeCellConnectionNode>(Outer);
-		reinterpret_cast<URuntimeCellConnectionNode*>(NewRuntimeNode)->NodeInfo = reinterpret_cast<UCellConnectionData*>(
-			reinterpret_cast<const UCellConnectionNode*>(UiNode)->GetNodeInfo());
+		auto CastedNode = reinterpret_cast<const UCellConnectionNode*>(UiNode);
+		auto CastedInfo = reinterpret_cast<UCellConnectionData*>(CastedNode->GetNodeInfo());
+		// Normalize the weights when saving the value
+		CastedInfo->Normalize();
+		reinterpret_cast<URuntimeCellConnectionNode*>(NewRuntimeNode)->NodeInfo = CastedInfo;
 	}
 
 	if (NewRuntimeNode != nullptr)

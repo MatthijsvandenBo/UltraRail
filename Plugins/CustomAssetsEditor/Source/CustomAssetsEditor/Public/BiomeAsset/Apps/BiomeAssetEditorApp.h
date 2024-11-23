@@ -44,6 +44,8 @@ public:
 
 	virtual void OnClose() override;
 
+	virtual void SaveAsset_Execute() override;
+
 	void OnNodeDetailsViewPropertiesUpdated(const FPropertyChangedEvent& Event);
 	void OnGraphChanced(const FEdGraphEditAction& EditAction);
 

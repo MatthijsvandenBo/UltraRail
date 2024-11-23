@@ -12,4 +12,8 @@ class CUSTOMASSETSEDITORRUNTIME_API UCellConnectionData : public UNodeInfoBase
 public:
 	UPROPERTY(EditAnywhere, Blueprintable, BlueprintReadWrite)
 	TMap<int32, float> WeightMap;
+
+	UFUNCTION(BlueprintCallable, Category = "Utility")
+	void Normalize();
 };
+
