@@ -4,7 +4,6 @@
 #include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/FieldObserver.h"
 #include "WorldGen/WaveFunctionCollapse/Structs/CellState.h"
-#include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
 
 DEFINE_LOG_CATEGORY(LogBasicCellObserver);
 

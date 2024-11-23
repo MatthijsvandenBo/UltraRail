@@ -1,6 +1,5 @@
 ﻿#include "WorldGen/WaveFunctionCollapse/BasicFieldObserver.h"
 #include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
-#include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
 
 #include "BiomeAsset/Assets/BiomeAsset.h"
 

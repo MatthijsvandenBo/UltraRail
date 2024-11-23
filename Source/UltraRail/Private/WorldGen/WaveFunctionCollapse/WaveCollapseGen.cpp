@@ -3,8 +3,6 @@
 #include "BiomeAsset/Assets/BiomeAsset.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/CellStateObserver.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/FieldObserver.h"
-#include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
-#include "WorldGen/WaveFunctionCollapse/Blocks/Block.h"
 
 DEFINE_LOG_CATEGORY(LogWaveFunctionCollapse);
 

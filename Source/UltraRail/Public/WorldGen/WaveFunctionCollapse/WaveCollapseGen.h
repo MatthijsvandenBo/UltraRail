@@ -5,7 +5,6 @@
 #include "Structs/CellState.h"
 #include "WaveCollapseGen.generated.h"
 
-class UBiomeBlockIDs;
 class ABlock;
 class UBiomeAsset;
 
@@ -33,10 +32,6 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
 		meta=(AllowPrivateAccess))
 	int32 GenerateOffset = 0;
-
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blocks",
-	// 	meta=(AllowPrivateAccess))
-	// TObjectPtr<UBiomeBlockIDs> BiomeBlockIDs = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blocks",
 		meta=(AllowPrivateAccess))
@@ -93,8 +88,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 GetExtraChunkGenerationFieldWidth() const noexcept { return StartFieldWidth + 1; }
 
-	// UFUNCTION(BlueprintCallable, BlueprintPure)
-	// const UBiomeBlockIDs* GetBiomeBlockIDs() const noexcept { return BiomeBlockIDs.Get(); };
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const UBiomeAsset* GetBiomeAsset() const noexcept { return BiomeAsset.Get(); }
 
