@@ -147,6 +147,7 @@ void FBiomeAssetEditorApp::UpdateWorkingAssetFromGraph()
 			URuntimePin* RuntimePin = NewObject<URuntimePin>(RuntimeNode);
 			RuntimePin->PinName = UiPin->PinName;
 			RuntimePin->PinId = UiPin->PinId;
+			RuntimePin->ParentNode = RuntimeNode;
 
 			if (UiPin->HasAnyConnections() && UiPin->Direction == EGPD_Output)
 			{

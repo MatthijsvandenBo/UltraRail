@@ -17,39 +17,48 @@ public:
 	UBiomeAssetRuntimeGraph* Graph = nullptr;
 
 	UFUNCTION(BlueprintCallable, Category="Utility|Search")
-	TSubclassOf<AActor> FindTypeByID(int32 SearchID);
+	TSubclassOf<AActor> FindTypeByID(int32 SearchID) const noexcept;
 
 	UFUNCTION(BlueprintCallable, Category="Utility|Search")
-	int32 FindIdByType(TSubclassOf<AActor> SearchType);
+	int32 FindIdByType(TSubclassOf<AActor> SearchType) const noexcept;
+
+	UFUNCTION(BlueprintCallable, Category="Utility|Search")
+	int32 GetDefinitionCount() const noexcept;
+	UFUNCTION(BlueprintCallable, Category="Utility|Search")
+	int32 GetConnectionCount() const noexcept;
+	UFUNCTION(BlueprintCallable, Category="Utility|Search")
+	TArray<int32> GetRegisteredIDs() const noexcept;
+
+	TArray<TMap<int32, float>> GetWeightMapsByID(int32 SearchID) const;
+	TMap<int32, float> GetWeightMapByID(int32 SearchID, int32 Index) const;
+	TMap<int32, float> GetWeightMapByType(const TSubclassOf<AActor>& SearchType, int32 Index) const;
 
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetTopWeightMapByID(const int32 SearchID) { return GetWeightMapByID(SearchID, 0); }
+	TMap<int32, float> GetTopWeightMapByID(const int32 SearchID) const noexcept { return GetWeightMapByID(SearchID, 0); }
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetRightWeightMapByID(const int32 SearchID) { return GetWeightMapByID(SearchID, 1); }
+	TMap<int32, float> GetRightWeightMapByID(const int32 SearchID) const noexcept { return GetWeightMapByID(SearchID, 1); }
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetBottomWeightMapByID(const int32 SearchID) { return GetWeightMapByID(SearchID, 2); }
+	TMap<int32, float> GetBottomWeightMapByID(const int32 SearchID) const noexcept { return GetWeightMapByID(SearchID, 2); }
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetLeftWeightMapByID(const int32 SearchID) { return GetWeightMapByID(SearchID, 3); }
+	TMap<int32, float> GetLeftWeightMapByID(const int32 SearchID) const noexcept { return GetWeightMapByID(SearchID, 3); }
 	
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetTopWeightMapByType(const TSubclassOf<AActor> SearchType) { return GetWeightMapByType(SearchType, 0); }
+	TMap<int32, float> GetTopWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept { return GetWeightMapByType(SearchType, 0); }
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetRightWeightMapByType(const TSubclassOf<AActor> SearchType) { return GetWeightMapByType(SearchType, 1); }
+	TMap<int32, float> GetRightWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept { return GetWeightMapByType(SearchType, 1); }
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetBottomWeightMapByType(const TSubclassOf<AActor> SearchType) { return GetWeightMapByType(SearchType, 2); }
+	TMap<int32, float> GetBottomWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept { return GetWeightMapByType(SearchType, 2); }
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetLeftWeightMapByType(const TSubclassOf<AActor> SearchType) { return GetWeightMapByType(SearchType, 3); }
+	TMap<int32, float> GetLeftWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept { return GetWeightMapByType(SearchType, 3); }
 
 private:
 	template <class T>
-	TArray<T*> FindNodeTypes();
+	TArray<T*> FindNodeTypes() const;
 
-	TMap<int32, float> GetWeightMapByID(int32 SearchID, int32 Index);
-	TMap<int32, float> GetWeightMapByType(const TSubclassOf<AActor>& SearchType, int32 Index);
 };
 
 template <class T>
-TArray<T*> UBiomeAsset::FindNodeTypes()
+TArray<T*> UBiomeAsset::FindNodeTypes() const
 {
 	TArray<T*> Array;
 

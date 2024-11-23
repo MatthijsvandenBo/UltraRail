@@ -1,4 +1,6 @@
 ﻿#include "WorldGen/WaveFunctionCollapse/BasicCellObserver.h"
+
+#include "BiomeAsset/Assets/BiomeAsset.h"
 #include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/FieldObserver.h"
 #include "WorldGen/WaveFunctionCollapse/Structs/CellState.h"
@@ -6,15 +8,9 @@
 
 DEFINE_LOG_CATEGORY(LogBasicCellObserver);
 
-#define UPDATE_SURROUNDING_CELL(Observer, NeighbourDir, X, Y, XOffset, YOffset, State, Ruleset) \
-	if(IFieldObserver::Execute_Get##NeighbourDir##Neighbour(Observer, X, Y, State) && State.BlockID == FCellState::Empty_State) { \
-		UpdateCell(State, Ruleset->CollapseSettings.Allowed##NeighbourDir##IDs); \
-		IFieldObserver::Execute_SetCell(Observer, X + XOffset, Y + YOffset, State); \
-	}
-
 #pragma region LOCAL_FUNCTION_DEFINITIONS
 
-static bool UpdateCell(FCellState& TargetCell, const TArray<FBlockIdWeight>& AllowedConnectionFilter);
+static bool UpdateCell(FCellState& TargetCell, const TMap<int32, float>& AllowedConnectionFilter);
 
 #pragma endregion // LOCAL_FUNCTION_DEFINITIONS
 
@@ -74,32 +70,31 @@ void ABasicCellObserver::ObserveCell_Implementation(UObject* Observer, const int
 	// Insert the state
 	IFieldObserver::Execute_SetCell(Observer, X, Y, CellState);
 
-	// Retrieve the rule-set of the collapsed id
-	const auto* RuleSet = WaveCollapse->GetBiomeBlockIDs()->BlockIdConnections.FindByPredicate([&FilterId = CellState.BlockID](const FBlockIdConnection& IdConnection)
-	{
-		return IdConnection.ID == FilterId;
-	});
-	
 	// Should never be possible, but you can never be too sure
-	if (RuleSet == nullptr)
+	if (!WaveCollapse->GetBiomeAsset()->GetRegisteredIDs().Contains(CellState.BlockID))
 	{
 		UE_LOG(LogBasicCellObserver, Error, TEXT("Rule-set on id `%d` could not be found"), CellState.BlockID);
 		return;
 	}
 
+	#define UPDATE_SURROUNDING_CELL(Observer, Asset, NeighbourDir, X, Y, XOffset, YOffset, State) \
+		if (IFieldObserver::Execute_Get##NeighbourDir##Neighbour(Observer, X, Y, State) && State.BlockID == FCellState::Empty_State) { \
+			UpdateCell(State, (Asset)->Get##NeighbourDir##WeightMapByID(CellState.BlockID)); \
+			IFieldObserver::Execute_SetCell(Observer, X + XOffset, Y + YOffset, State); \
+		}
+
 	FCellState NeighbourState;
-
 	// Updates the top neighbour
-	UPDATE_SURROUNDING_CELL(Observer,    Top, X, Y, 0, 1,  NeighbourState, RuleSet)
-
+	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(),   Top, X, Y, 0, 1, NeighbourState)
+	
 	// Updates the right neighbour
-	UPDATE_SURROUNDING_CELL(Observer,  Right, X, Y, 1, 0,  NeighbourState, RuleSet)
-
+	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(),  Right, X, Y, 1, 0, NeighbourState)
+	
 	// Updates the bottom neighbour
-	UPDATE_SURROUNDING_CELL(Observer, Bottom, X, Y, 0, -1, NeighbourState, RuleSet)
-
+	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(), Bottom, X, Y, 0, -1, NeighbourState)
+	
 	// Updates the left neighbour
-	UPDATE_SURROUNDING_CELL(Observer,   Left, X, Y, -1, 0, NeighbourState, RuleSet)
+	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(),   Left, X, Y, -1, 0, NeighbourState)
 	
 	LastObserved[0] = X;
 	LastObserved[1] = Y;
@@ -115,9 +110,10 @@ void ABasicCellObserver::GetLastObserved_Implementation(int32& X, int32& Y)
 
 #pragma region LOCAL_FUNCTION_IMPLEMENTATION
 
-static bool UpdateCell(
+bool UpdateCell(
 	FCellState& TargetCell,
-	const TArray<FBlockIdWeight>& AllowedConnectionFilter)
+	const TMap<int32, float>& AllowedConnectionFilter
+)
 {
 	if (TargetCell.BlockID != FCellState::Empty_State ||
 		AllowedConnectionFilter.IsEmpty())
@@ -142,11 +138,7 @@ static bool UpdateCell(
 	
 	for (auto& [ID, Weight] : NewEntropy)
 	{
-		const auto AddedWeight = AllowedConnectionFilter.FindByPredicate([&ID](const FBlockIdWeight& EntropyEntry)
-		{
-			return EntropyEntry.BlockID == ID;
-		})->Weight;
-
+		const auto AddedWeight = AllowedConnectionFilter[ID];
 		Weight += AddedWeight;
 	}
 

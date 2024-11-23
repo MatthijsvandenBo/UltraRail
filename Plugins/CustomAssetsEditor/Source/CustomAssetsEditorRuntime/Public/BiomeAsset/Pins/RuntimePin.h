@@ -21,4 +21,7 @@ public:
 
 	UPROPERTY()
 	URuntimePin* Connection = nullptr;
+
+	UPROPERTY()
+	class URuntimeNode* ParentNode = nullptr;
 };

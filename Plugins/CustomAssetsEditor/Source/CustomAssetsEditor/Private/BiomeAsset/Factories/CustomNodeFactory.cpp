@@ -16,18 +16,18 @@ URuntimeNode* FCustomNodeFactory::CreateRuntimeNode(const UCustomGraphNode* UiNo
 	if (UiNode->NodeType == ENodeTypes::CellDefinition)
 	{
 		NewRuntimeNode = NewObject<URuntimeCellDefinitionNode>(Outer);
-		reinterpret_cast<URuntimeCellDefinitionNode*>(NewRuntimeNode)->NodeInfo = reinterpret_cast<UCellDefinitionData*>(
-			reinterpret_cast<const UCellDefinitionNode*>(UiNode)->GetNodeInfo());
+		Cast<URuntimeCellDefinitionNode>(NewRuntimeNode)->NodeInfo = Cast<UCellDefinitionData>(
+			Cast<UCellDefinitionNode>(UiNode)->GetNodeInfo());
 	}
 
 	if (UiNode->NodeType == ENodeTypes::CellConnection)
 	{
 		NewRuntimeNode = NewObject<URuntimeCellConnectionNode>(Outer);
-		auto CastedNode = reinterpret_cast<const UCellConnectionNode*>(UiNode);
-		auto CastedInfo = reinterpret_cast<UCellConnectionData*>(CastedNode->GetNodeInfo());
+		auto CastedNode = Cast<UCellConnectionNode>(UiNode);
+		auto CastedInfo = Cast<UCellConnectionData>(CastedNode->GetNodeInfo());
 		// Normalize the weights when saving the value
 		CastedInfo->Normalize();
-		reinterpret_cast<URuntimeCellConnectionNode*>(NewRuntimeNode)->NodeInfo = CastedInfo;
+		Cast<URuntimeCellConnectionNode>(NewRuntimeNode)->NodeInfo = CastedInfo;
 	}
 
 	if (NewRuntimeNode != nullptr)
@@ -43,16 +43,16 @@ UCustomGraphNode* FCustomNodeFactory::CreateEditorNode(URuntimeNode* RuntimeNode
 	if (RuntimeNode->NodeType == ENodeTypes::CellDefinition)
 	{
 		NewUiNode = NewObject<UCellDefinitionNode>(Outer);
-		const auto* NodeInfo = reinterpret_cast<const URuntimeCellDefinitionNode*>(RuntimeNode)->NodeInfo;
+		const auto* NodeInfo = Cast<URuntimeCellDefinitionNode>(RuntimeNode)->NodeInfo;
 		if (NodeInfo == nullptr)
 		{
-			reinterpret_cast<UCellDefinitionNode*>(NewUiNode)->SetNodeInfo(
+			Cast<UCellDefinitionNode>(NewUiNode)->SetNodeInfo(
 				NewObject<UCellDefinitionData>(RuntimeNode)
 			);
 		}
 		else
 		{
-			reinterpret_cast<UCellDefinitionNode*>(NewUiNode)->SetNodeInfo(
+			Cast<UCellDefinitionNode>(NewUiNode)->SetNodeInfo(
 				DuplicateObject(NodeInfo, RuntimeNode)
 			);
 		}
@@ -61,16 +61,16 @@ UCustomGraphNode* FCustomNodeFactory::CreateEditorNode(URuntimeNode* RuntimeNode
 	if (RuntimeNode->NodeType == ENodeTypes::CellConnection)
 	{
 		NewUiNode = NewObject<UCellConnectionNode>(Outer);
-		const auto* NodeInfo = reinterpret_cast<const URuntimeCellConnectionNode*>(RuntimeNode)->NodeInfo;
+		const auto* NodeInfo = Cast<URuntimeCellConnectionNode>(RuntimeNode)->NodeInfo;
 		if (NodeInfo == nullptr)
 		{
-			reinterpret_cast<UCellConnectionNode*>(NewUiNode)->SetNodeInfo(
+			Cast<UCellConnectionNode>(NewUiNode)->SetNodeInfo(
 				NewObject<UCellConnectionData>(RuntimeNode)
 			);
 		}
 		else
 		{
-			reinterpret_cast<UCellConnectionNode*>(NewUiNode)->SetNodeInfo(
+			Cast<UCellConnectionNode>(NewUiNode)->SetNodeInfo(
 				DuplicateObject(NodeInfo, RuntimeNode)
 			);
 		}
