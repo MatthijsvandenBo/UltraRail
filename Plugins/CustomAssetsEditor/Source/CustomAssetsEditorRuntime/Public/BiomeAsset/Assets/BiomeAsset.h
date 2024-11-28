@@ -29,27 +29,73 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Utility|Search")
 	TArray<int32> GetRegisteredIDs() const noexcept;
 
-	TArray<TMap<int32, float>> GetWeightMapsByID(int32 SearchID) const;
-	TMap<int32, float> GetWeightMapByID(int32 SearchID, int32 Index) const;
-	TMap<int32, float> GetWeightMapByType(const TSubclassOf<AActor>& SearchType, int32 Index) const;
+	TArray<TMap<int32, float>*> GetWeightMapsByID(int32 SearchID) const;
+	TMap<int32, float>* GetWeightMapByID(int32 SearchID, int32 Index) const;
+	TMap<int32, float>* GetWeightMapByType(const TSubclassOf<AActor>& SearchType, int32 Index) const;
 
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetTopWeightMapByID(const int32 SearchID) const noexcept { return GetWeightMapByID(SearchID, 0); }
+	TMap<int32, float> GetTopWeightMapByID(const int32 SearchID) const noexcept {
+		const auto Map = GetWeightMapByID(SearchID, 0);
+		if (Map == nullptr)
+			return {};
+		return *Map;
+	}
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetRightWeightMapByID(const int32 SearchID) const noexcept { return GetWeightMapByID(SearchID, 1); }
+	TMap<int32, float> GetRightWeightMapByID(const int32 SearchID) const noexcept
+	{
+		const auto Map = GetWeightMapByID(SearchID, 1);
+		if (Map == nullptr)
+			return {};
+		return *Map;
+	}
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetBottomWeightMapByID(const int32 SearchID) const noexcept { return GetWeightMapByID(SearchID, 2); }
+	TMap<int32, float> GetBottomWeightMapByID(const int32 SearchID) const noexcept
+	{
+		const auto Map = GetWeightMapByID(SearchID, 2);
+		if (Map == nullptr)
+			return {};
+		return *Map;
+	}
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetLeftWeightMapByID(const int32 SearchID) const noexcept { return GetWeightMapByID(SearchID, 3); }
+	TMap<int32, float> GetLeftWeightMapByID(const int32 SearchID) const noexcept
+	{
+		const auto Map = GetWeightMapByID(SearchID, 3);
+		if (Map == nullptr)
+			return {};
+		return *Map;
+	}
 	
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetTopWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept { return GetWeightMapByType(SearchType, 0); }
+	TMap<int32, float> GetTopWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept
+	{
+		const auto Map = GetWeightMapByType(SearchType, 0);
+		if (Map == nullptr)
+			return {};
+		return *Map;
+	}
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetRightWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept { return GetWeightMapByType(SearchType, 1); }
+	TMap<int32, float> GetRightWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept
+	{
+		const auto Map = GetWeightMapByType(SearchType, 1);
+		if (Map == nullptr)
+			return {};
+		return *Map;
+	}
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetBottomWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept { return GetWeightMapByType(SearchType, 2); }
+	TMap<int32, float> GetBottomWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept
+	{
+		const auto Map = GetWeightMapByType(SearchType, 2);
+		if (Map == nullptr)
+			return {};
+		return *Map;
+	}
 	UFUNCTION(BlueprintCallable, Category="Utility|Weight")
-	TMap<int32, float> GetLeftWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept { return GetWeightMapByType(SearchType, 3); }
+	TMap<int32, float> GetLeftWeightMapByType(const TSubclassOf<AActor> SearchType) const noexcept {
+		const auto Map = GetWeightMapByType(SearchType, 3);
+		if (Map == nullptr)
+			return {};
+		return *Map;
+	}
 
 private:
 	template <class T>
