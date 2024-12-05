@@ -1,6 +1,7 @@
 ﻿#include "WorldGen/WaveFunctionCollapse/BasicFieldObserver.h"
 #include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
-#include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
+
+#include "BiomeAsset/Assets/BiomeAsset.h"
 
 // Sets default values
 ABasicFieldObserver::ABasicFieldObserver()
@@ -36,12 +37,14 @@ int64 ABasicFieldObserver::TranslateIndexFromCart_Implementation(const int32 X, 
 
 void ABasicFieldObserver::SetupFieldObserver_Implementation(AWaveCollapseGen* WaveCollapseGen)
 {
-	const auto BiomeBlocks = WaveCollapseGen->GetBiomeBlockIDs();
-	BiomeBlockCount = BiomeBlocks->BlockIdConnections.Num();
+	// const auto BiomeBlocks = WaveCollapseGen->GetBiomeBlockIDs();
+	const auto BiomeAsset = WaveCollapseGen->GetBiomeAsset();
+	
+	BiomeBlockCount = BiomeAsset->GetDefinitionCount();
 	FieldWidth = WaveCollapseGen->GetGenerationFieldWidth();
 	FieldDepth = WaveCollapseGen->GetGenerationFieldDepth();
 	
-	const auto RegisteredIds = BiomeBlocks->RegisteredIds();
+	const auto RegisteredIds = BiomeAsset->GetRegisteredIDs();
 	const auto RegisteredIdCount = RegisteredIds.Num();
 	
 	TArray<FBlockIdWeight> Weights = {};

@@ -5,7 +5,6 @@
 #include "Interfaces/FieldObserver.h"
 #include "BasicFieldObserver.generated.h"
 
-class UBiomeBlockIDs;
 
 UCLASS(Blueprintable)
 class ULTRARAIL_API ABasicFieldObserver : public AActor, public IFieldObserver
