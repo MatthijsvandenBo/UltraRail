@@ -1,9 +1,8 @@
 ﻿#include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
 
+#include "BiomeAsset/Assets/BiomeAsset.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/CellStateObserver.h"
 #include "WorldGen/WaveFunctionCollapse/Interfaces/FieldObserver.h"
-#include "WorldGen/WaveFunctionCollapse/DataAssets/BiomeBlockIDs.h"
-#include "WorldGen/WaveFunctionCollapse/Blocks/Block.h"
 
 DEFINE_LOG_CATEGORY(LogWaveFunctionCollapse);
 
@@ -37,13 +36,13 @@ void AWaveCollapseGen::BeginPlay()
 	}
 
 	// Normalize the id connection weights
-	BiomeBlockIDs->NormalizeWeights();
+	// BiomeBlockIDs->NormalizeWeights();
 
 	// setup the lookup tables
-	for (const auto& [BlockClass, BlockID, _] : BiomeBlockIDs->BlockIdConnections)
+	for (const auto BlockID : BiomeAsset->GetRegisteredIDs())
 	{
-		ToBlockLookupMap.Add(BlockID, BlockClass);
-		ToIdLookupMap.Add(BlockClass, BlockID);
+		ToBlockLookupMap.Add(BlockID, BiomeAsset->FindTypeByID(BlockID));
+		ToIdLookupMap.Add(BiomeAsset->FindTypeByID(BlockID), BlockID);
 	}
 
 	GenerateStartChunk();
