@@ -35,9 +35,6 @@ void AWaveCollapseGen::BeginPlay()
 		return;
 	}
 
-	// Normalize the id connection weights
-	// BiomeBlockIDs->NormalizeWeights();
-
 	// setup the lookup tables
 	for (const auto BlockID : BiomeAsset->GetRegisteredIDs())
 	{
@@ -46,10 +43,6 @@ void AWaveCollapseGen::BeginPlay()
 	}
 
 	GenerateStartChunk();
-
-	// Just a test with extra chunk generation
-	FTimerHandle UnusedHandle;
-	GetWorldTimerManager().SetTimer(UnusedHandle, this, &AWaveCollapseGen::GenerateNextChunk, 10.f, false);
 }
 
 void AWaveCollapseGen::CollapseField()
