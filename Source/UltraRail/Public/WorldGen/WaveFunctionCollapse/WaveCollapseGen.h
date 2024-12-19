@@ -5,8 +5,8 @@
 #include "Structs/CellState.h"
 #include "WaveCollapseGen.generated.h"
 
-class UBiomeBlockIDs;
 class ABlock;
+class UBiomeAsset;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogWaveFunctionCollapse, Log, All);
 
@@ -35,7 +35,7 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blocks",
 		meta=(AllowPrivateAccess))
-	TObjectPtr<UBiomeBlockIDs> BiomeBlockIDs = nullptr;
+	TObjectPtr<UBiomeAsset> BiomeAsset = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Generation",
 		meta=(AllowPrivateAccess))
@@ -48,9 +48,9 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 	// Non-exposed Fields
 	
 	UPROPERTY(Blueprintable)
-	TMap<int32, TSubclassOf<ABlock>> ToBlockLookupMap;
+	TMap<int32, TSubclassOf<AActor>> ToBlockLookupMap;
 	UPROPERTY(Blueprintable)
-	TMap<TSubclassOf<ABlock>, int32> ToIdLookupMap;
+	TMap<TSubclassOf<AActor>, int32> ToIdLookupMap;
 	UPROPERTY()
 	int32 StartFieldWidth = 0;
 
@@ -89,7 +89,7 @@ public:
 	int32 GetExtraChunkGenerationFieldWidth() const noexcept { return StartFieldWidth + 1; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	const UBiomeBlockIDs* GetBiomeBlockIDs() const noexcept { return BiomeBlockIDs.Get(); };
+	const UBiomeAsset* GetBiomeAsset() const noexcept { return BiomeAsset.Get(); }
 
 private:
 	UFUNCTION()
