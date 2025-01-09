@@ -76,7 +76,7 @@ void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 		{
 			TArray<FCellState> FieldState;
 			IFieldObserver::Execute_GetFieldState(FieldObserver, FieldState);
-			ResolveField(FieldState);
+			ResolveField(FieldState, StartingChunk ? -1 : 0);
 			OnFieldCollapsed.Broadcast(StartingChunk);
 		});
 	});
@@ -97,7 +97,7 @@ void AWaveCollapseGen::GenerateNextChunk()
 
 	// Setup the offsets and the correction in the field-width as
 	// the first column is used as a reference and not to be generated
-	GenerateOffset = GetGenerationFieldWidth() - 1;
+	GenerateOffset += GetGenerationFieldWidth() - 1;
 	FieldWidth = GetExtraChunkGenerationFieldWidth();
 
 	// Setup the interfaces
@@ -113,7 +113,7 @@ void AWaveCollapseGen::GenerateNextChunk()
 	CollapseFieldAsync(false);
 }
 
-void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState) const noexcept
+void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState, const int SkippedColumn) const noexcept
 {
 	const auto FieldSize = FieldState.Num();
 	const auto World = GetWorld();
@@ -125,6 +125,8 @@ void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState) const 
 		int32 X = 0;
 		int32 Y = 0;
 		IFieldObserver::Execute_TranslateIndexToCart(FieldObserver, i, X, Y);
+		if (X == SkippedColumn)
+			continue;
 		
 		const auto SpawnedClass = ToBlockLookupMap.Find(BlockID);
 		if (SpawnedClass == nullptr)

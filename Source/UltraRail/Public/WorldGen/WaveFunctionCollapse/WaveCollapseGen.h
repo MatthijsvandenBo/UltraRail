@@ -79,10 +79,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override {};
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, CallInEditor)
 	void GenerateStartChunk();
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, CallInEditor)
 	void GenerateNextChunk();
 
 	UFUNCTION(BlueprintCallable)
@@ -100,6 +100,6 @@ public:
 
 private:
 	UFUNCTION()
-	void ResolveField(const TArray<FCellState>& FieldState) const noexcept;
+	void ResolveField(const TArray<FCellState>& FieldState, int SkippedColumn = -1) const noexcept;
 };
 
