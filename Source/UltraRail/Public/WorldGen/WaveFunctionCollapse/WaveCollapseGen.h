@@ -15,6 +15,10 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 {
 	GENERATED_BODY()
 
+	// Events
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFieldCollapsedDelegate,
+		bool, WasStartingChunk);
+
 	// Exposed Fields 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
@@ -43,7 +47,7 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Generation",
 		meta=(AllowPrivateAccess))
 	TObjectPtr<AActor> FieldObserver = nullptr;
-	
+
 
 	// Non-exposed Fields
 	
@@ -67,13 +71,13 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void SetupInterfaces();
+
+	UFUNCTION(BlueprintCallable)
+	void CollapseFieldAsync(bool StartingChunk);
 	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override {};
-
-	UFUNCTION(BlueprintCallable)
-	void CollapseFieldAsync();
 
 	UFUNCTION(BlueprintCallable)
 	void GenerateStartChunk();
@@ -90,6 +94,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const UBiomeAsset* GetBiomeAsset() const noexcept { return BiomeAsset.Get(); }
+
+	UPROPERTY(BlueprintAssignable)
+	FOnFieldCollapsedDelegate OnFieldCollapsed;
 
 private:
 	UFUNCTION()

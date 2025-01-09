@@ -18,6 +18,12 @@ void AWaveCollapseGen::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (!IsValid(BiomeAsset))
+	{
+		UE_LOG(LogWaveFunctionCollapse, Error, TEXT("Biome-asset may not be null"))
+		return;
+	}
+
 	StartFieldWidth = FieldWidth;
 	
 	if (CellStateObserver == nullptr || FieldObserver == nullptr)
@@ -41,8 +47,6 @@ void AWaveCollapseGen::BeginPlay()
 		ToBlockLookupMap.Add(BlockID, BiomeAsset->FindTypeByID(BlockID));
 		ToIdLookupMap.Add(BiomeAsset->FindTypeByID(BlockID), BlockID);
 	}
-
-	GenerateStartChunk();
 }
 
 void AWaveCollapseGen::CollapseField()
@@ -62,17 +66,18 @@ void AWaveCollapseGen::SetupInterfaces()
 	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 }
 
-void AWaveCollapseGen::CollapseFieldAsync()
+void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 {
-	AsyncTask(ENamedThreads::Type::BackgroundThreadPriority, [this]
+	AsyncTask(ENamedThreads::Type::BackgroundThreadPriority, [this, StartingChunk]
 	{
 		CollapseField();
 
-		AsyncTask(ENamedThreads::Type::GameThread, [this]
+		AsyncTask(ENamedThreads::Type::GameThread, [this, StartingChunk]
 		{
 			TArray<FCellState> FieldState;
 			IFieldObserver::Execute_GetFieldState(FieldObserver, FieldState);
 			ResolveField(FieldState);
+			OnFieldCollapsed.Broadcast(StartingChunk);
 		});
 	});
 }
@@ -81,7 +86,7 @@ void AWaveCollapseGen::GenerateStartChunk()
 {
 	FieldWidth = StartFieldWidth;
 	SetupInterfaces();
-	CollapseFieldAsync();
+	CollapseFieldAsync(true);
 }
 
 void AWaveCollapseGen::GenerateNextChunk()
@@ -105,7 +110,7 @@ void AWaveCollapseGen::GenerateNextChunk()
 	IFieldObserver::Execute_SetColumn(FieldObserver, 0, OldLastColumn);
 
 	// Collapse the field async
-	CollapseFieldAsync();
+	CollapseFieldAsync(false);
 }
 
 void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState) const noexcept
