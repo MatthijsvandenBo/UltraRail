@@ -97,7 +97,7 @@ void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 
 void AWaveCollapseGen::GenerateStartChunk()
 {
-	if (bIsBusy)
+	if (bIsBusy || !IsValid(BiomeAsset))
 		return;
 	
 	SetupInterfaces(FieldWidth);
@@ -106,7 +106,7 @@ void AWaveCollapseGen::GenerateStartChunk()
 
 void AWaveCollapseGen::GenerateNextChunk()
 {
-	if (bIsBusy)
+	if (bIsBusy || !IsValid(BiomeAsset))
 		return;
 	
 	// Setup the interfaces
