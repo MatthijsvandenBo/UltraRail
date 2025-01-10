@@ -48,6 +48,9 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 		meta=(AllowPrivateAccess))
 	TObjectPtr<AActor> FieldObserver = nullptr;
 
+	UPROPERTY()
+	TArray<FCellState> LastGeneratedColumn;
+
 
 	// Non-exposed Fields
 	
@@ -55,8 +58,6 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 	TMap<int32, TSubclassOf<AActor>> ToBlockLookupMap;
 	UPROPERTY(Blueprintable)
 	TMap<TSubclassOf<AActor>, int32> ToIdLookupMap;
-	UPROPERTY()
-	int32 StartFieldWidth = 0;
 
 public:
 	// Sets default values for this actor's properties
@@ -70,7 +71,7 @@ protected:
 	void CollapseField();
 
 	UFUNCTION(BlueprintCallable)
-	void SetupInterfaces();
+	void SetupInterfaces(int Width);
 
 	UFUNCTION(BlueprintCallable)
 	void CollapseFieldAsync(bool StartingChunk);
@@ -89,8 +90,6 @@ public:
 	const int32& GetGenerationFieldWidth() const noexcept { return FieldWidth; }
 	UFUNCTION(BlueprintCallable)
 	const int32& GetGenerationFieldDepth() const noexcept { return FieldDepth; }
-	UFUNCTION(BlueprintCallable)
-	int32 GetExtraChunkGenerationFieldWidth() const noexcept { return StartFieldWidth + 1; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const UBiomeAsset* GetBiomeAsset() const noexcept { return BiomeAsset.Get(); }
@@ -100,6 +99,6 @@ public:
 
 private:
 	UFUNCTION()
-	void ResolveField(const TArray<FCellState>& FieldState, int SkippedColumn = -1) const noexcept;
+	void ResolveField(const TArray<FCellState>& FieldState, bool FirstIsDummy = false) const noexcept;
 };
 

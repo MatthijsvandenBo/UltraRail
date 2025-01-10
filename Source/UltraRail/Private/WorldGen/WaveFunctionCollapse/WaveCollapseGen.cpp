@@ -24,8 +24,6 @@ void AWaveCollapseGen::BeginPlay()
 		return;
 	}
 
-	StartFieldWidth = FieldWidth;
-	
 	if (CellStateObserver == nullptr || FieldObserver == nullptr)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red,
@@ -60,9 +58,9 @@ void AWaveCollapseGen::CollapseField()
 	UE_LOG(LogWaveFunctionCollapse, Log, TEXT("Field is collapsed"))
 }
 
-void AWaveCollapseGen::SetupInterfaces()
+void AWaveCollapseGen::SetupInterfaces(const int Width)
 {
-	IFieldObserver::Execute_SetupFieldObserver(FieldObserver, this);
+	IFieldObserver::Execute_SetupFieldObserver(FieldObserver, this, Width, FieldDepth);
 	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 }
 
@@ -76,57 +74,47 @@ void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 		{
 			TArray<FCellState> FieldState;
 			IFieldObserver::Execute_GetFieldState(FieldObserver, FieldState);
-			ResolveField(FieldState, StartingChunk ? -1 : 0);
+			ResolveField(FieldState, !StartingChunk);
 			OnFieldCollapsed.Broadcast(StartingChunk);
+			GenerateOffset += FieldWidth;
+			IFieldObserver::Execute_GetColumn(FieldObserver, IFieldObserver::Execute_GetFieldWidth(FieldObserver) - 1, LastGeneratedColumn);
 		});
 	});
 }
 
 void AWaveCollapseGen::GenerateStartChunk()
 {
-	FieldWidth = StartFieldWidth;
-	SetupInterfaces();
+	SetupInterfaces(FieldWidth);
 	CollapseFieldAsync(true);
 }
 
 void AWaveCollapseGen::GenerateNextChunk()
 {
-	// Retrieve the last column of the previous generated chunk
-	TArray<FCellState> OldLastColumn;
-	IFieldObserver::Execute_GetColumn(FieldObserver, IFieldObserver::Execute_GetFieldWidth(FieldObserver) - 1, OldLastColumn);
-
-	// Setup the offsets and the correction in the field-width as
-	// the first column is used as a reference and not to be generated
-	GenerateOffset += GetGenerationFieldWidth() - 1;
-	FieldWidth = GetExtraChunkGenerationFieldWidth();
-
 	// Setup the interfaces
-	SetupInterfaces();
-
-	// Revert the changes in the width
-	FieldWidth = GetExtraChunkGenerationFieldWidth() - 1;
+	SetupInterfaces(FieldWidth + 1);
 
 	// Update the first column in the observer
-	IFieldObserver::Execute_SetColumn(FieldObserver, 0, OldLastColumn);
+	IFieldObserver::Execute_SetColumn(FieldObserver, 0, LastGeneratedColumn);
 
 	// Collapse the field async
 	CollapseFieldAsync(false);
 }
 
-void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState, const int SkippedColumn) const noexcept
+void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState, const bool FirstIsDummy) const noexcept
 {
 	const auto FieldSize = FieldState.Num();
 	const auto World = GetWorld();
 	for (int64 i = 0; i < FieldSize; ++i)
 	{
-		// split the cell-state entry into its id and weights (where weights are unused)
-		const auto& [BlockID, _] = FieldState[i];
-
 		int32 X = 0;
 		int32 Y = 0;
 		IFieldObserver::Execute_TranslateIndexToCart(FieldObserver, i, X, Y);
-		if (X == SkippedColumn)
+
+		if (FirstIsDummy && X == 0)
 			continue;
+		
+		// split the cell-state entry into its id and weights (where weights are unused)
+		const auto& [BlockID, _] = FieldState[i];
 		
 		const auto SpawnedClass = ToBlockLookupMap.Find(BlockID);
 		if (SpawnedClass == nullptr)
@@ -136,7 +124,7 @@ void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState, const 
 			return;
 		}
 
-		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset) * GridSize, 0};
+		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset - FirstIsDummy) * GridSize, 0};
         		
 		World->SpawnActor(
 			SpawnedClass->Get(),

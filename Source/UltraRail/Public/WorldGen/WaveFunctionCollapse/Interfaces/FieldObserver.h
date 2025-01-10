@@ -30,7 +30,7 @@ public:
 	int64 TranslateIndexFromCart(const int32 X, const int32 Y);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	void SetupFieldObserver(AWaveCollapseGen* WaveCollapseGen);
+	void SetupFieldObserver(AWaveCollapseGen* WaveCollapseGen, int Width, int Depth);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetCurrentOptimalLocation(int32& X, int32& Y);

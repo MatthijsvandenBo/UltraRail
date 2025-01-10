@@ -35,14 +35,14 @@ int64 ABasicFieldObserver::TranslateIndexFromCart_Implementation(const int32 X, 
 	return Y * FieldWidth + X;
 }
 
-void ABasicFieldObserver::SetupFieldObserver_Implementation(AWaveCollapseGen* WaveCollapseGen)
+void ABasicFieldObserver::SetupFieldObserver_Implementation(AWaveCollapseGen* WaveCollapseGen, int Width, int Depth)
 {
 	// const auto BiomeBlocks = WaveCollapseGen->GetBiomeBlockIDs();
 	const auto BiomeAsset = WaveCollapseGen->GetBiomeAsset();
 	
 	BiomeBlockCount = BiomeAsset->GetDefinitionCount();
-	FieldWidth = WaveCollapseGen->GetGenerationFieldWidth();
-	FieldDepth = WaveCollapseGen->GetGenerationFieldDepth();
+	FieldWidth = Width;
+	FieldDepth = Depth;
 	
 	const auto RegisteredIds = BiomeAsset->GetRegisteredIDs();
 	const auto RegisteredIdCount = RegisteredIds.Num();

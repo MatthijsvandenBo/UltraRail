@@ -37,7 +37,7 @@ public:
 	virtual void  TranslateIndexToCart_Implementation(const int64 Index, int32& X, int32& Y) override;
 	virtual int64 TranslateIndexFromCart_Implementation(const int32 X, const int32 Y) override;
 
-	virtual void SetupFieldObserver_Implementation(AWaveCollapseGen* WaveCollapseGen) override;
+	virtual void SetupFieldObserver_Implementation(AWaveCollapseGen* WaveCollapseGen, int Width, int Depth) override;
 	virtual bool GetCurrentOptimalLocation_Implementation(int32& X, int32& Y) override;
 	virtual void GetFieldState_Implementation(TArray<FCellState>& Field) override;
 	virtual bool GetCell_Implementation(int32 X, int32 Y, FCellState& CellState) override;
