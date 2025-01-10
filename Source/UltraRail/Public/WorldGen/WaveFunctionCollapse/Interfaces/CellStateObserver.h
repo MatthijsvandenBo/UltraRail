@@ -31,5 +31,8 @@ public:
 	void ObserveCell(UObject* FieldObserver, int32 X, int32 Y);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="CellStateObserver")
+	void UpdateCellSurrounding(UObject* FieldObserver, int32 X, int32 Y);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="CellStateObserver")
 	void GetLastObserved(int32& X, int32& Y);
 };
