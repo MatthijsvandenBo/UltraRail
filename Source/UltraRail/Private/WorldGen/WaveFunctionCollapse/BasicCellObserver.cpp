@@ -76,6 +76,18 @@ void ABasicCellObserver::ObserveCell_Implementation(UObject* Observer, const int
 		return;
 	}
 
+	UpdateCellSurrounding_Implementation(Observer, X, Y);
+
+	LastObserved[0] = X;
+	LastObserved[1] = Y;
+}
+
+void ABasicCellObserver::UpdateCellSurrounding_Implementation(UObject* FieldObserver, const int32 X, const int32 Y)
+{
+	FCellState CellState;
+	if (!IFieldObserver::Execute_GetCell(FieldObserver, X, Y, CellState) && CellState.BlockID == FCellState::Empty_State)
+		return;
+	
 	#define UPDATE_SURROUNDING_CELL(Observer, Asset, NeighbourDir, X, Y, XOffset, YOffset, State) \
 		if (IFieldObserver::Execute_Get##NeighbourDir##Neighbour(Observer, X, Y, State) && State.BlockID == FCellState::Empty_State) { \
 			UpdateCell(State, (Asset)->Get##NeighbourDir##WeightMapByID(CellState.BlockID)); \
@@ -84,19 +96,16 @@ void ABasicCellObserver::ObserveCell_Implementation(UObject* Observer, const int
 
 	FCellState NeighbourState;
 	// Updates the top neighbour
-	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(),   Top, X, Y, 0, 1, NeighbourState)
+	UPDATE_SURROUNDING_CELL(FieldObserver, WaveCollapse->GetBiomeAsset(),   Top, X, Y, 0, 1, NeighbourState)
 	
 	// Updates the right neighbour
-	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(),  Right, X, Y, 1, 0, NeighbourState)
+	UPDATE_SURROUNDING_CELL(FieldObserver, WaveCollapse->GetBiomeAsset(),  Right, X, Y, 1, 0, NeighbourState)
 	
 	// Updates the bottom neighbour
-	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(), Bottom, X, Y, 0, -1, NeighbourState)
+	UPDATE_SURROUNDING_CELL(FieldObserver, WaveCollapse->GetBiomeAsset(), Bottom, X, Y, 0, -1, NeighbourState)
 	
 	// Updates the left neighbour
-	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(),   Left, X, Y, -1, 0, NeighbourState)
-	
-	LastObserved[0] = X;
-	LastObserved[1] = Y;
+	UPDATE_SURROUNDING_CELL(FieldObserver, WaveCollapse->GetBiomeAsset(),   Left, X, Y, -1, 0, NeighbourState)
 }
 
 void ABasicCellObserver::GetLastObserved_Implementation(int32& X, int32& Y)
