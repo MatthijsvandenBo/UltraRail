@@ -16,7 +16,8 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 	GENERATED_BODY()
 
 	// Events
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFieldCollapsedDelegate,
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFieldCollapsedDelegate,
+		bool, Success,
 		bool, WasStartingChunk);
 
 	// Exposed Fields 
@@ -48,16 +49,18 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 		meta=(AllowPrivateAccess))
 	TObjectPtr<AActor> FieldObserver = nullptr;
 
-	UPROPERTY()
-	TArray<FCellState> LastGeneratedColumn;
-
-
 	// Non-exposed Fields
 	
 	UPROPERTY(Blueprintable)
 	TMap<int32, TSubclassOf<AActor>> ToBlockLookupMap;
 	UPROPERTY(Blueprintable)
 	TMap<TSubclassOf<AActor>, int32> ToIdLookupMap;
+	
+	UPROPERTY()
+	TArray<FCellState> LastGeneratedColumn;
+
+	UPROPERTY()
+	bool bIsBusy = false;
 
 public:
 	// Sets default values for this actor's properties

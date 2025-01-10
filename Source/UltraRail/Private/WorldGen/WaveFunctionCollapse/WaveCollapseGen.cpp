@@ -60,12 +60,23 @@ void AWaveCollapseGen::CollapseField()
 
 void AWaveCollapseGen::SetupInterfaces(const int Width)
 {
+	if (bIsBusy)
+		return;
+	
 	IFieldObserver::Execute_SetupFieldObserver(FieldObserver, this, Width, FieldDepth);
 	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 }
 
 void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 {
+	if (bIsBusy)
+	{
+		OnFieldCollapsed.Broadcast(false, false);
+		return;
+	}
+
+	bIsBusy = true;
+		
 	AsyncTask(ENamedThreads::Type::BackgroundThreadPriority, [this, StartingChunk]
 	{
 		CollapseField();
@@ -77,7 +88,8 @@ void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 			IFieldObserver::Execute_GetFieldState(FieldObserver, FieldState);
 			
 			ResolveField(FieldState, !StartingChunk);
-			OnFieldCollapsed.Broadcast(StartingChunk);
+			bIsBusy = false;
+			OnFieldCollapsed.Broadcast(true, StartingChunk);
 			GenerateOffset += FieldWidth;
 		});
 	});
@@ -85,12 +97,18 @@ void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 
 void AWaveCollapseGen::GenerateStartChunk()
 {
+	if (bIsBusy)
+		return;
+	
 	SetupInterfaces(FieldWidth);
 	CollapseFieldAsync(true);
 }
 
 void AWaveCollapseGen::GenerateNextChunk()
 {
+	if (bIsBusy)
+		return;
+	
 	// Setup the interfaces
 	SetupInterfaces(FieldWidth + 1);
 
