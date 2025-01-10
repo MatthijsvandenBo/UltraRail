@@ -35,6 +35,7 @@ public:
 
 	virtual void SetupCellObserver_Implementation(AWaveCollapseGen* WaveCollapseGen) override;
 	virtual void ObserveCell_Implementation(UObject* Observer, int32 X, int32 Y) override;
+	virtual void UpdateCellSurrounding_Implementation(UObject* FieldObserver, int32 X, int32 Y) override;
 	virtual void GetLastObserved_Implementation(int32& X, int32& Y) override;
 
 #pragma endregion // CELL_OBSERVER_IMPLEMENTATION

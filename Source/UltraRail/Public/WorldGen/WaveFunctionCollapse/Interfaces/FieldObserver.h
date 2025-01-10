@@ -30,7 +30,7 @@ public:
 	int64 TranslateIndexFromCart(const int32 X, const int32 Y);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	void SetupFieldObserver(AWaveCollapseGen* WaveCollapseGen, int Width, int Depth);
+	void SetupFieldObserver(AWaveCollapseGen* WaveCollapseGen, int32 Width, int32 Depth);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetCurrentOptimalLocation(int32& X, int32& Y);
@@ -61,5 +61,5 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
 	bool GetColumn(int32 ColumnIndex, TArray<FCellState>& Column);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FieldObserver")
-	bool SetColumn(int32 ColumnIndex, const TArray<FCellState>& NewColumn);
+	bool SetColumn(int32 ColumnIndex, const TArray<FCellState>& NewColumn, UObject* CellObserver);
 };

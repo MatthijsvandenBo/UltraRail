@@ -69,15 +69,16 @@ void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 	AsyncTask(ENamedThreads::Type::BackgroundThreadPriority, [this, StartingChunk]
 	{
 		CollapseField();
+		IFieldObserver::Execute_GetColumn(FieldObserver, IFieldObserver::Execute_GetFieldWidth(FieldObserver) - 1, LastGeneratedColumn);
 
 		AsyncTask(ENamedThreads::Type::GameThread, [this, StartingChunk]
 		{
 			TArray<FCellState> FieldState;
 			IFieldObserver::Execute_GetFieldState(FieldObserver, FieldState);
+			
 			ResolveField(FieldState, !StartingChunk);
 			OnFieldCollapsed.Broadcast(StartingChunk);
 			GenerateOffset += FieldWidth;
-			IFieldObserver::Execute_GetColumn(FieldObserver, IFieldObserver::Execute_GetFieldWidth(FieldObserver) - 1, LastGeneratedColumn);
 		});
 	});
 }
@@ -94,7 +95,7 @@ void AWaveCollapseGen::GenerateNextChunk()
 	SetupInterfaces(FieldWidth + 1);
 
 	// Update the first column in the observer
-	IFieldObserver::Execute_SetColumn(FieldObserver, 0, LastGeneratedColumn);
+	IFieldObserver::Execute_SetColumn(FieldObserver, 0, LastGeneratedColumn, CellStateObserver);
 
 	// Collapse the field async
 	CollapseFieldAsync(false);

@@ -2,6 +2,7 @@
 #include "WorldGen/WaveFunctionCollapse/WaveCollapseGen.h"
 
 #include "BiomeAsset/Assets/BiomeAsset.h"
+#include "WorldGen/WaveFunctionCollapse/Interfaces/CellStateObserver.h"
 
 // Sets default values
 ABasicFieldObserver::ABasicFieldObserver()
@@ -35,7 +36,7 @@ int64 ABasicFieldObserver::TranslateIndexFromCart_Implementation(const int32 X, 
 	return Y * FieldWidth + X;
 }
 
-void ABasicFieldObserver::SetupFieldObserver_Implementation(AWaveCollapseGen* WaveCollapseGen, int Width, int Depth)
+void ABasicFieldObserver::SetupFieldObserver_Implementation(AWaveCollapseGen* WaveCollapseGen, const int32 Width, const int32 Depth)
 {
 	// const auto BiomeBlocks = WaveCollapseGen->GetBiomeBlockIDs();
 	const auto BiomeAsset = WaveCollapseGen->GetBiomeAsset();
@@ -149,7 +150,9 @@ bool ABasicFieldObserver::GetColumn_Implementation(const int32 ColumnIndex, TArr
 {
 	if (ColumnIndex >= FieldWidth || ColumnIndex < 0)
 		return false;
-	
+
+	// Always make sure that the array is empty before filling it
+	Column.Reset();
 	Column.Reserve(FieldDepth);
 	for (int32 Y = 0; Y < FieldDepth; Y++)
 	{
@@ -160,7 +163,7 @@ bool ABasicFieldObserver::GetColumn_Implementation(const int32 ColumnIndex, TArr
 	return true;
 }
 
-bool ABasicFieldObserver::SetColumn_Implementation(const int32 ColumnIndex, const TArray<FCellState>& NewColumn)
+bool ABasicFieldObserver::SetColumn_Implementation(const int32 ColumnIndex, const TArray<FCellState>& NewColumn, UObject* CellObserver)
 {
 	if (ColumnIndex >= FieldWidth || ColumnIndex < 0 || NewColumn.Num() < FieldDepth)
 		return false;
@@ -170,6 +173,9 @@ bool ABasicFieldObserver::SetColumn_Implementation(const int32 ColumnIndex, cons
 		const auto TranslatedIndex = TranslateIndexFromCart_Implementation(ColumnIndex, Y);
 		FieldState[TranslatedIndex] = NewColumn[Y];
 	}
+
+	for (int32 Y = 0; Y < FieldDepth; Y++)
+		ICellStateObserver::Execute_UpdateCellSurrounding(CellObserver, this, ColumnIndex, Y);
 
 	return true;
 }
