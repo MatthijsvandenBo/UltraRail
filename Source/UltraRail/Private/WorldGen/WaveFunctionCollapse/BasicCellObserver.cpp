@@ -9,7 +9,7 @@ DEFINE_LOG_CATEGORY(LogBasicCellObserver);
 
 #pragma region LOCAL_FUNCTION_DEFINITIONS
 
-static bool UpdateCell(FCellState& TargetCell, const TMap<int32, float>& AllowedConnectionFilter);
+static bool UpdateCell(FCellState& TargetCell, const TMap<int32, double>& AllowedConnectionFilter);
 
 #pragma endregion // LOCAL_FUNCTION_DEFINITIONS
 
@@ -51,7 +51,7 @@ void ABasicCellObserver::ObserveCell_Implementation(UObject* Observer, const int
 	
 	// Uses the Rand() function,
 	// so init seed with 'FMath::RandInit(seed)'
-	auto RandomValue = FMath::RandRange(0.f, 1.f);
+	auto RandomValue = FMath::RandRange(0., 100.);
 	auto ChosenCollapseValue = 0;
 	for (int32 i = 0; i < CellEntropy; i++)
 	{
@@ -120,7 +120,7 @@ void ABasicCellObserver::GetLastObserved_Implementation(int32& X, int32& Y)
 
 bool UpdateCell(
 	FCellState& TargetCell,
-	const TMap<int32, float>& AllowedConnectionFilter
+	const TMap<int32, double>& AllowedConnectionFilter
 )
 {
 	if (TargetCell.BlockID != FCellState::Empty_State ||
@@ -151,11 +151,11 @@ bool UpdateCell(
 	}
 
 	// Normalize the weights 
-	float TotalWeightValue = 0.f;
+	double TotalWeightValue = 0.;
 	for (auto& [_, Weight] : NewEntropy)
 		TotalWeightValue += Weight;
 	for (auto& [_, Weight] : NewEntropy)
-		Weight /= TotalWeightValue;
+		Weight /= (TotalWeightValue / 100.);
 
 	// Set the new entropy to the cell
 	TargetEntropy = NewEntropy;

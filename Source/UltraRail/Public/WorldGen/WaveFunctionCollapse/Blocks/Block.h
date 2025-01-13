@@ -10,7 +10,7 @@ class ULTRARAIL_API ABlock : public AActor
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	TObjectPtr<UStaticMeshComponent> BlockMesh;
 
 public:
