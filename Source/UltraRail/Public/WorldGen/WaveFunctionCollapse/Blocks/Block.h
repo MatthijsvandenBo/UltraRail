@@ -10,6 +10,9 @@ class ULTRARAIL_API ABlock : public AActor
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
+	bool bAutoDestroyBlueprint = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	TObjectPtr<UStaticMeshComponent> BlockMesh;
 
@@ -20,6 +23,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void ReplaceSelf() noexcept;
 
 public:
 	// Called every frame

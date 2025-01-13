@@ -1,5 +1,7 @@
 ﻿#include "UltraRail/Public/WorldGen/WaveFunctionCollapse/Blocks/Block.h"
 
+#include "Engine/StaticMeshActor.h"
+
 
 // Sets default values
 ABlock::ABlock()
@@ -19,7 +21,21 @@ ABlock::ABlock()
 void ABlock::BeginPlay()
 {
 	Super::BeginPlay();
+	if (!bAutoDestroyBlueprint)
+		return;
 	
+	ReplaceSelf();
+}
+
+void ABlock::ReplaceSelf() noexcept
+{
+	auto World = BlockMesh->GetWorld();
+	const auto& Transform = BlockMesh->GetComponentTransform();
+	const auto MeshActor = Cast<AStaticMeshActor>(
+		World->SpawnActor(AStaticMeshActor::StaticClass(), &Transform));
+	MeshActor->SetMobility(EComponentMobility::Stationary);
+	MeshActor->GetStaticMeshComponent()->SetStaticMesh(BlockMesh->GetStaticMesh());
+	Destroy();
 }
 
 // Called every frame
