@@ -23,8 +23,21 @@ void ABlock::BeginPlay()
 	Super::BeginPlay();
 	if (!bAutoDestroyBlueprint)
 		return;
-	
-	ReplaceSelf();
+
+	if (FMath::IsNearlyZero(DestroyTimer))
+	{
+		ReplaceSelf();
+		return;
+	}
+
+	GetWorldTimerManager().SetTimer(
+		TimerHandle,
+		[this] {
+			ReplaceSelf();
+		},
+		DestroyTimer,
+		false
+	);
 }
 
 void ABlock::ReplaceSelf() noexcept
@@ -36,6 +49,12 @@ void ABlock::ReplaceSelf() noexcept
 	MeshActor->SetMobility(EComponentMobility::Stationary);
 	MeshActor->GetStaticMeshComponent()->SetStaticMesh(BlockMesh->GetStaticMesh());
 	Destroy();
+}
+
+void ABlock::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+	Super::EndPlay(EndPlayReason);
 }
 
 // Called every frame
