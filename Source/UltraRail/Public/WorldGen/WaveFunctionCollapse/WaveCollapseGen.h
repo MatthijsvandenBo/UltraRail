@@ -78,6 +78,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void CollapseFieldAsync(bool StartingChunk);
+
+	void SetupLookupMaps() noexcept;
 	
 public:
 	// Called every frame
@@ -96,6 +98,27 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const UBiomeAsset* GetBiomeAsset() const noexcept { return BiomeAsset.Get(); }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool SetBiomeAsset(UBiomeAsset* NewBiomeAsset)
+	{
+		if (bIsBusy)
+			return false;
+
+		BiomeAsset = NewBiomeAsset;
+		SetupLookupMaps();
+		return true;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool SetFieldWidth(int32 NewFieldWidth)
+	{
+		if (bIsBusy)
+			return false;
+
+		FieldWidth = NewFieldWidth;
+		return true;
+	}
 
 	UPROPERTY(BlueprintAssignable)
 	FOnFieldCollapsedDelegate OnFieldCollapsed;

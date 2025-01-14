@@ -40,11 +40,7 @@ void AWaveCollapseGen::BeginPlay()
 	}
 
 	// setup the lookup tables
-	for (const auto BlockID : BiomeAsset->GetRegisteredIDs())
-	{
-		ToBlockLookupMap.Add(BlockID, BiomeAsset->FindTypeByID(BlockID));
-		ToIdLookupMap.Add(BiomeAsset->FindTypeByID(BlockID), BlockID);
-	}
+	SetupLookupMaps();
 }
 
 void AWaveCollapseGen::CollapseField()
@@ -93,6 +89,15 @@ void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 			GenerateOffset += FieldWidth;
 		});
 	});
+}
+
+void AWaveCollapseGen::SetupLookupMaps() noexcept
+{
+	for (const auto BlockID : BiomeAsset->GetRegisteredIDs())
+	{
+		ToBlockLookupMap.Add(BlockID, BiomeAsset->FindTypeByID(BlockID));
+		ToIdLookupMap.Add(BiomeAsset->FindTypeByID(BlockID), BlockID);
+	}
 }
 
 void AWaveCollapseGen::GenerateStartChunk()
