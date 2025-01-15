@@ -49,7 +49,7 @@ TArray<int32> UBiomeAsset::GetRegisteredIDs() const noexcept
 		
 }
 
-TArray<TMap<int32, float>*> UBiomeAsset::GetWeightMapsByID(const int32 SearchID) const
+TArray<TMap<int32, double>*> UBiomeAsset::GetWeightMapsByID(const int32 SearchID) const
 {
 	const auto SearchingNodes = FindNodeTypes<URuntimeCellDefinitionNode>();
 	URuntimeCellDefinitionNode* TargetNode = nullptr;
@@ -65,7 +65,7 @@ TArray<TMap<int32, float>*> UBiomeAsset::GetWeightMapsByID(const int32 SearchID)
 	if (TargetNode == nullptr)
 		return {};
 
-	TArray<TMap<int32, float>*> Weights;
+	TArray<TMap<int32, double>*> Weights;
 	Weights.Reserve(TargetNode->OutputPins.Num());
 	for (const auto* OutputPin : TargetNode->OutputPins)
 	{
@@ -83,7 +83,7 @@ TArray<TMap<int32, float>*> UBiomeAsset::GetWeightMapsByID(const int32 SearchID)
 	return Weights;
 }
 
-TMap<int32, float>* UBiomeAsset::GetWeightMapByID(const int32 SearchID, const int32 Index) const
+TMap<int32, double>* UBiomeAsset::GetWeightMapByID(const int32 SearchID, const int32 Index) const
 {
 	const auto Maps = GetWeightMapsByID(SearchID);
 	if (Index >= Maps.Num() || Index < 0)
@@ -92,7 +92,7 @@ TMap<int32, float>* UBiomeAsset::GetWeightMapByID(const int32 SearchID, const in
 	return Maps[Index];
 }
 
-TMap<int32, float>* UBiomeAsset::GetWeightMapByType(const TSubclassOf<AActor>& SearchType, const int32 Index) const
+TMap<int32, double>* UBiomeAsset::GetWeightMapByType(const TSubclassOf<AActor>& SearchType, const int32 Index) const
 {
 	const auto SearchID = FindIdByType(SearchType);
 	return GetWeightMapByID(SearchID, Index);

@@ -10,7 +10,7 @@ DEFINE_LOG_CATEGORY(LogWaveFunctionCollapse);
 AWaveCollapseGen::AWaveCollapseGen()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 // Called when the game starts or when spawned
@@ -40,11 +40,7 @@ void AWaveCollapseGen::BeginPlay()
 	}
 
 	// setup the lookup tables
-	for (const auto BlockID : BiomeAsset->GetRegisteredIDs())
-	{
-		ToBlockLookupMap.Add(BlockID, BiomeAsset->FindTypeByID(BlockID));
-		ToIdLookupMap.Add(BiomeAsset->FindTypeByID(BlockID), BlockID);
-	}
+	SetupLookupMaps();
 }
 
 void AWaveCollapseGen::CollapseField()
@@ -60,12 +56,23 @@ void AWaveCollapseGen::CollapseField()
 
 void AWaveCollapseGen::SetupInterfaces(const int Width)
 {
+	if (bIsBusy)
+		return;
+	
 	IFieldObserver::Execute_SetupFieldObserver(FieldObserver, this, Width, FieldDepth);
 	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 }
 
 void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 {
+	if (bIsBusy)
+	{
+		OnFieldCollapsed.Broadcast(false, false);
+		return;
+	}
+
+	bIsBusy = true;
+		
 	AsyncTask(ENamedThreads::Type::BackgroundThreadPriority, [this, StartingChunk]
 	{
 		CollapseField();
@@ -77,20 +84,36 @@ void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 			IFieldObserver::Execute_GetFieldState(FieldObserver, FieldState);
 			
 			ResolveField(FieldState, !StartingChunk);
-			OnFieldCollapsed.Broadcast(StartingChunk);
+			bIsBusy = false;
 			GenerateOffset += FieldWidth;
+			OnFieldCollapsed.Broadcast(true, StartingChunk);
 		});
 	});
 }
 
+void AWaveCollapseGen::SetupLookupMaps() noexcept
+{
+	for (const auto BlockID : BiomeAsset->GetRegisteredIDs())
+	{
+		ToBlockLookupMap.Add(BlockID, BiomeAsset->FindTypeByID(BlockID));
+		ToIdLookupMap.Add(BiomeAsset->FindTypeByID(BlockID), BlockID);
+	}
+}
+
 void AWaveCollapseGen::GenerateStartChunk()
 {
+	if (bIsBusy || !IsValid(BiomeAsset))
+		return;
+	
 	SetupInterfaces(FieldWidth);
 	CollapseFieldAsync(true);
 }
 
 void AWaveCollapseGen::GenerateNextChunk()
 {
+	if (bIsBusy || !IsValid(BiomeAsset))
+		return;
+	
 	// Setup the interfaces
 	SetupInterfaces(FieldWidth + 1);
 
@@ -125,7 +148,7 @@ void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState, const 
 			return;
 		}
 
-		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset - FirstIsDummy) * GridSize, 0};
+		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset - FirstIsDummy) * GridSize, ZGenerateOffset};
         		
 		World->SpawnActor(
 			SpawnedClass->Get(),
