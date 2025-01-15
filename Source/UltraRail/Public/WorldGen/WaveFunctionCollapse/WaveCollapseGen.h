@@ -36,6 +36,10 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
 		meta=(AllowPrivateAccess))
+	float ZGenerateOffset = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
+		meta=(AllowPrivateAccess))
 	int32 GenerateOffset = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blocks",
