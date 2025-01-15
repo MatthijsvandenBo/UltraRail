@@ -148,7 +148,7 @@ void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState, const 
 			return;
 		}
 
-		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset - FirstIsDummy) * GridSize, 0};
+		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset - FirstIsDummy) * GridSize, ZGenerateOffset};
         		
 		World->SpawnActor(
 			SpawnedClass->Get(),
