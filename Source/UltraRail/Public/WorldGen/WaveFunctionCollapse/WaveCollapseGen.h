@@ -91,10 +91,14 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor)
 	void GenerateNextChunk();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const int32& GetGenerationFieldWidth() const noexcept { return FieldWidth; }
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const int32& GetGenerationFieldDepth() const noexcept { return FieldDepth; }
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const int32& GetGenerationOffset() const noexcept { return GenerateOffset; }
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const float& GetGenerationGridSize() const noexcept { return GridSize; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const UBiomeAsset* GetBiomeAsset() const noexcept { return BiomeAsset.Get(); }
