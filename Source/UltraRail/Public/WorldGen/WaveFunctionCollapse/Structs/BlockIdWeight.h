@@ -13,6 +13,6 @@ struct ULTRARAIL_API FBlockIdWeight
 public:
  UPROPERTY(EditAnywhere, BlueprintReadOnly)
  int32 BlockID = 0;
- UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(UIMin = "0.0", UIMax = "1.0"))
- float Weight = 1;
+ UPROPERTY(EditAnywhere, BlueprintReadOnly)
+ double Weight = 1;
 };

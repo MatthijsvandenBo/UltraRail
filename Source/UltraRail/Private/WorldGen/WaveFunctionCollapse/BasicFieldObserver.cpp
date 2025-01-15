@@ -51,7 +51,7 @@ void ABasicFieldObserver::SetupFieldObserver_Implementation(AWaveCollapseGen* Wa
 	TArray<FBlockIdWeight> Weights = {};
 	Weights.Reserve(RegisteredIdCount);
 	for (const auto& RegisteredID : RegisteredIds)
-		Weights.Add({RegisteredID, 1.f / RegisteredIdCount});
+		Weights.Add({RegisteredID, 100.f / RegisteredIdCount});
 	
 	FieldState.Init({FCellState::Empty_State, Weights}, FieldWidth * FieldDepth);
 }
