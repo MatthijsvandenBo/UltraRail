@@ -10,7 +10,7 @@ DEFINE_LOG_CATEGORY(LogWaveFunctionCollapse);
 AWaveCollapseGen::AWaveCollapseGen()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 // Called when the game starts or when spawned
@@ -18,8 +18,12 @@ void AWaveCollapseGen::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StartFieldWidth = FieldWidth;
-	
+	if (!IsValid(BiomeAsset))
+	{
+		UE_LOG(LogWaveFunctionCollapse, Error, TEXT("Biome-asset may not be null"))
+		return;
+	}
+
 	if (CellStateObserver == nullptr || FieldObserver == nullptr)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red,
@@ -35,21 +39,8 @@ void AWaveCollapseGen::BeginPlay()
 		return;
 	}
 
-	// Normalize the id connection weights
-	// BiomeBlockIDs->NormalizeWeights();
-
 	// setup the lookup tables
-	for (const auto BlockID : BiomeAsset->GetRegisteredIDs())
-	{
-		ToBlockLookupMap.Add(BlockID, BiomeAsset->FindTypeByID(BlockID));
-		ToIdLookupMap.Add(BiomeAsset->FindTypeByID(BlockID), BlockID);
-	}
-
-	GenerateStartChunk();
-
-	// Just a test with extra chunk generation
-	FTimerHandle UnusedHandle;
-	GetWorldTimerManager().SetTimer(UnusedHandle, this, &AWaveCollapseGen::GenerateNextChunk, 10.f, false);
+	SetupLookupMaps();
 }
 
 void AWaveCollapseGen::CollapseField()
@@ -63,70 +54,91 @@ void AWaveCollapseGen::CollapseField()
 	UE_LOG(LogWaveFunctionCollapse, Log, TEXT("Field is collapsed"))
 }
 
-void AWaveCollapseGen::SetupInterfaces()
+void AWaveCollapseGen::SetupInterfaces(const int Width)
 {
-	IFieldObserver::Execute_SetupFieldObserver(FieldObserver, this);
+	if (bIsBusy)
+		return;
+	
+	IFieldObserver::Execute_SetupFieldObserver(FieldObserver, this, Width, FieldDepth);
 	ICellStateObserver::Execute_SetupCellObserver(CellStateObserver, this);
 }
 
-void AWaveCollapseGen::CollapseFieldAsync()
+void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 {
-	AsyncTask(ENamedThreads::Type::BackgroundThreadPriority, [this]
+	if (bIsBusy)
+	{
+		OnFieldCollapsed.Broadcast(false, false);
+		return;
+	}
+
+	bIsBusy = true;
+		
+	AsyncTask(ENamedThreads::Type::BackgroundThreadPriority, [this, StartingChunk]
 	{
 		CollapseField();
+		IFieldObserver::Execute_GetColumn(FieldObserver, IFieldObserver::Execute_GetFieldWidth(FieldObserver) - 1, LastGeneratedColumn);
 
-		AsyncTask(ENamedThreads::Type::GameThread, [this]
+		AsyncTask(ENamedThreads::Type::GameThread, [this, StartingChunk]
 		{
 			TArray<FCellState> FieldState;
 			IFieldObserver::Execute_GetFieldState(FieldObserver, FieldState);
-			ResolveField(FieldState);
+			
+			ResolveField(FieldState, !StartingChunk);
+			bIsBusy = false;
+			GenerateOffset += FieldWidth;
+			OnFieldCollapsed.Broadcast(true, StartingChunk);
 		});
 	});
 }
 
+void AWaveCollapseGen::SetupLookupMaps() noexcept
+{
+	for (const auto BlockID : BiomeAsset->GetRegisteredIDs())
+	{
+		ToBlockLookupMap.Add(BlockID, BiomeAsset->FindTypeByID(BlockID));
+		ToIdLookupMap.Add(BiomeAsset->FindTypeByID(BlockID), BlockID);
+	}
+}
+
 void AWaveCollapseGen::GenerateStartChunk()
 {
-	FieldWidth = StartFieldWidth;
-	SetupInterfaces();
-	CollapseFieldAsync();
+	if (bIsBusy || !IsValid(BiomeAsset))
+		return;
+	
+	SetupInterfaces(FieldWidth);
+	CollapseFieldAsync(true);
 }
 
 void AWaveCollapseGen::GenerateNextChunk()
 {
-	// Retrieve the last column of the previous generated chunk
-	TArray<FCellState> OldLastColumn;
-	IFieldObserver::Execute_GetColumn(FieldObserver, IFieldObserver::Execute_GetFieldWidth(FieldObserver) - 1, OldLastColumn);
-
-	// Setup the offsets and the correction in the field-width as
-	// the first column is used as a reference and not to be generated
-	GenerateOffset = GetGenerationFieldWidth() - 1;
-	FieldWidth = GetExtraChunkGenerationFieldWidth();
-
+	if (bIsBusy || !IsValid(BiomeAsset))
+		return;
+	
 	// Setup the interfaces
-	SetupInterfaces();
-
-	// Revert the changes in the width
-	FieldWidth = GetExtraChunkGenerationFieldWidth() - 1;
+	SetupInterfaces(FieldWidth + 1);
 
 	// Update the first column in the observer
-	IFieldObserver::Execute_SetColumn(FieldObserver, 0, OldLastColumn);
+	IFieldObserver::Execute_SetColumn(FieldObserver, 0, LastGeneratedColumn, CellStateObserver);
 
 	// Collapse the field async
-	CollapseFieldAsync();
+	CollapseFieldAsync(false);
 }
 
-void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState) const noexcept
+void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState, const bool FirstIsDummy) const noexcept
 {
 	const auto FieldSize = FieldState.Num();
 	const auto World = GetWorld();
 	for (int64 i = 0; i < FieldSize; ++i)
 	{
-		// split the cell-state entry into its id and weights (where weights are unused)
-		const auto& [BlockID, _] = FieldState[i];
-
 		int32 X = 0;
 		int32 Y = 0;
 		IFieldObserver::Execute_TranslateIndexToCart(FieldObserver, i, X, Y);
+
+		if (FirstIsDummy && X == 0)
+			continue;
+		
+		// split the cell-state entry into its id and weights (where weights are unused)
+		const auto& [BlockID, _] = FieldState[i];
 		
 		const auto SpawnedClass = ToBlockLookupMap.Find(BlockID);
 		if (SpawnedClass == nullptr)
@@ -136,7 +148,7 @@ void AWaveCollapseGen::ResolveField(const TArray<FCellState>& FieldState) const 
 			return;
 		}
 
-		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset) * GridSize, 0};
+		const FVector TwoDCoordinate = {Y * GridSize, (X + GenerateOffset - FirstIsDummy) * GridSize, ZGenerateOffset};
         		
 		World->SpawnActor(
 			SpawnedClass->Get(),

@@ -15,6 +15,11 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 {
 	GENERATED_BODY()
 
+	// Events
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFieldCollapsedDelegate,
+		bool, Success,
+		bool, WasStartingChunk);
+
 	// Exposed Fields 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
@@ -31,6 +36,10 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
 		meta=(AllowPrivateAccess))
+	float ZGenerateOffset = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Grid",
+		meta=(AllowPrivateAccess))
 	int32 GenerateOffset = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blocks",
@@ -43,7 +52,6 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Generation",
 		meta=(AllowPrivateAccess))
 	TObjectPtr<AActor> FieldObserver = nullptr;
-	
 
 	// Non-exposed Fields
 	
@@ -51,8 +59,12 @@ class ULTRARAIL_API AWaveCollapseGen : public AActor
 	TMap<int32, TSubclassOf<AActor>> ToBlockLookupMap;
 	UPROPERTY(Blueprintable)
 	TMap<TSubclassOf<AActor>, int32> ToIdLookupMap;
+	
 	UPROPERTY()
-	int32 StartFieldWidth = 0;
+	TArray<FCellState> LastGeneratedColumn;
+
+	UPROPERTY()
+	bool bIsBusy = false;
 
 public:
 	// Sets default values for this actor's properties
@@ -66,33 +78,61 @@ protected:
 	void CollapseField();
 
 	UFUNCTION(BlueprintCallable)
-	void SetupInterfaces();
+	void SetupInterfaces(int Width);
+
+	UFUNCTION(BlueprintCallable)
+	void CollapseFieldAsync(bool StartingChunk);
+
+	void SetupLookupMaps() noexcept;
 	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override {};
 
-	UFUNCTION(BlueprintCallable)
-	void CollapseFieldAsync();
-
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, CallInEditor)
 	void GenerateStartChunk();
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, CallInEditor)
 	void GenerateNextChunk();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const int32& GetGenerationFieldWidth() const noexcept { return FieldWidth; }
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const int32& GetGenerationFieldDepth() const noexcept { return FieldDepth; }
-	UFUNCTION(BlueprintCallable)
-	int32 GetExtraChunkGenerationFieldWidth() const noexcept { return StartFieldWidth + 1; }
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const int32& GetGenerationOffset() const noexcept { return GenerateOffset; }
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const float& GetGenerationGridSize() const noexcept { return GridSize; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const UBiomeAsset* GetBiomeAsset() const noexcept { return BiomeAsset.Get(); }
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool SetBiomeAsset(UBiomeAsset* NewBiomeAsset)
+	{
+		if (bIsBusy)
+			return false;
+
+		BiomeAsset = NewBiomeAsset;
+		SetupLookupMaps();
+		return true;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool SetFieldWidth(int32 NewFieldWidth)
+	{
+		if (bIsBusy)
+			return false;
+
+		FieldWidth = NewFieldWidth;
+		return true;
+	}
+
+	UPROPERTY(BlueprintAssignable)
+	FOnFieldCollapsedDelegate OnFieldCollapsed;
+
 private:
 	UFUNCTION()
-	void ResolveField(const TArray<FCellState>& FieldState) const noexcept;
+	void ResolveField(const TArray<FCellState>& FieldState, bool FirstIsDummy = false) const noexcept;
 };
 

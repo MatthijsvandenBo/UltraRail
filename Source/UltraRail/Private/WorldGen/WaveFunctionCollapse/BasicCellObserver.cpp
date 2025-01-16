@@ -9,7 +9,7 @@ DEFINE_LOG_CATEGORY(LogBasicCellObserver);
 
 #pragma region LOCAL_FUNCTION_DEFINITIONS
 
-static bool UpdateCell(FCellState& TargetCell, const TMap<int32, float>& AllowedConnectionFilter);
+static bool UpdateCell(FCellState& TargetCell, const TMap<int32, double>& AllowedConnectionFilter);
 
 #pragma endregion // LOCAL_FUNCTION_DEFINITIONS
 
@@ -51,7 +51,7 @@ void ABasicCellObserver::ObserveCell_Implementation(UObject* Observer, const int
 	
 	// Uses the Rand() function,
 	// so init seed with 'FMath::RandInit(seed)'
-	auto RandomValue = FMath::RandRange(0.f, 1.f);
+	auto RandomValue = FMath::RandRange(0., 100.);
 	auto ChosenCollapseValue = 0;
 	for (int32 i = 0; i < CellEntropy; i++)
 	{
@@ -76,6 +76,18 @@ void ABasicCellObserver::ObserveCell_Implementation(UObject* Observer, const int
 		return;
 	}
 
+	UpdateCellSurrounding_Implementation(Observer, X, Y);
+
+	LastObserved[0] = X;
+	LastObserved[1] = Y;
+}
+
+void ABasicCellObserver::UpdateCellSurrounding_Implementation(UObject* FieldObserver, const int32 X, const int32 Y)
+{
+	FCellState CellState;
+	if (!IFieldObserver::Execute_GetCell(FieldObserver, X, Y, CellState) && CellState.BlockID == FCellState::Empty_State)
+		return;
+	
 	#define UPDATE_SURROUNDING_CELL(Observer, Asset, NeighbourDir, X, Y, XOffset, YOffset, State) \
 		if (IFieldObserver::Execute_Get##NeighbourDir##Neighbour(Observer, X, Y, State) && State.BlockID == FCellState::Empty_State) { \
 			UpdateCell(State, (Asset)->Get##NeighbourDir##WeightMapByID(CellState.BlockID)); \
@@ -84,19 +96,16 @@ void ABasicCellObserver::ObserveCell_Implementation(UObject* Observer, const int
 
 	FCellState NeighbourState;
 	// Updates the top neighbour
-	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(),   Top, X, Y, 0, 1, NeighbourState)
+	UPDATE_SURROUNDING_CELL(FieldObserver, WaveCollapse->GetBiomeAsset(),   Top, X, Y, 0, 1, NeighbourState)
 	
 	// Updates the right neighbour
-	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(),  Right, X, Y, 1, 0, NeighbourState)
+	UPDATE_SURROUNDING_CELL(FieldObserver, WaveCollapse->GetBiomeAsset(),  Right, X, Y, 1, 0, NeighbourState)
 	
 	// Updates the bottom neighbour
-	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(), Bottom, X, Y, 0, -1, NeighbourState)
+	UPDATE_SURROUNDING_CELL(FieldObserver, WaveCollapse->GetBiomeAsset(), Bottom, X, Y, 0, -1, NeighbourState)
 	
 	// Updates the left neighbour
-	UPDATE_SURROUNDING_CELL(Observer, WaveCollapse->GetBiomeAsset(),   Left, X, Y, -1, 0, NeighbourState)
-	
-	LastObserved[0] = X;
-	LastObserved[1] = Y;
+	UPDATE_SURROUNDING_CELL(FieldObserver, WaveCollapse->GetBiomeAsset(),   Left, X, Y, -1, 0, NeighbourState)
 }
 
 void ABasicCellObserver::GetLastObserved_Implementation(int32& X, int32& Y)
@@ -111,7 +120,7 @@ void ABasicCellObserver::GetLastObserved_Implementation(int32& X, int32& Y)
 
 bool UpdateCell(
 	FCellState& TargetCell,
-	const TMap<int32, float>& AllowedConnectionFilter
+	const TMap<int32, double>& AllowedConnectionFilter
 )
 {
 	if (TargetCell.BlockID != FCellState::Empty_State ||
@@ -142,11 +151,11 @@ bool UpdateCell(
 	}
 
 	// Normalize the weights 
-	float TotalWeightValue = 0.f;
+	double TotalWeightValue = 0.;
 	for (auto& [_, Weight] : NewEntropy)
 		TotalWeightValue += Weight;
 	for (auto& [_, Weight] : NewEntropy)
-		Weight /= TotalWeightValue;
+		Weight /= (TotalWeightValue / 100.);
 
 	// Set the new entropy to the cell
 	TargetEntropy = NewEntropy;

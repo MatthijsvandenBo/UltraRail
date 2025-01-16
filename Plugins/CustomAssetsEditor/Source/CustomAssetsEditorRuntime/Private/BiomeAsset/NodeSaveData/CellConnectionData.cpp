@@ -2,7 +2,7 @@
 
 void UCellConnectionData::Normalize()
 {
-	float TotalWeight = 0;
+	double TotalWeight = 0;
 	for (const auto& [_, Weight] : WeightMap)
 		TotalWeight += Weight;
 
@@ -10,5 +10,5 @@ void UCellConnectionData::Normalize()
 		return;
 
 	for (auto& [_, Weight] : WeightMap)
-		Weight /= TotalWeight;
+		Weight /= (TotalWeight / 100.);
 }
