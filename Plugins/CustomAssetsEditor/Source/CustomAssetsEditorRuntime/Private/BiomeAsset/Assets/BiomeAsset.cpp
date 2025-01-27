@@ -43,7 +43,11 @@ TArray<int32> UBiomeAsset::GetRegisteredIDs() const noexcept
 	TArray<int32> RegisteredIDs;
 	RegisteredIDs.Reserve(SearchingNodes.Num());
 	for (const auto Node : SearchingNodes)
-		RegisteredIDs.Add(Node->NodeInfo->ID);
+	{
+		auto NodeInfo = Node->NodeInfo;
+		auto Id = NodeInfo->ID;
+		RegisteredIDs.Add(Id);
+	}
 
 	return RegisteredIDs;
 		

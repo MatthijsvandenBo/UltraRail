@@ -93,7 +93,8 @@ void AWaveCollapseGen::CollapseFieldAsync(bool StartingChunk)
 
 void AWaveCollapseGen::SetupLookupMaps() noexcept
 {
-	for (const auto BlockID : BiomeAsset->GetRegisteredIDs())
+	auto Ids = BiomeAsset->GetRegisteredIDs();
+	for (const auto BlockID : Ids)
 	{
 		ToBlockLookupMap.Add(BlockID, BiomeAsset->FindTypeByID(BlockID));
 		ToIdLookupMap.Add(BiomeAsset->FindTypeByID(BlockID), BlockID);
